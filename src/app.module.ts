@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
 
 console.log(process.env.DB_NAME || '')
 @Module({
@@ -22,10 +23,10 @@ console.log(process.env.DB_NAME || '')
       password: process.env.DB_PASSWORD || '',
       database: process.env.DB_NAME,
       entities: [__dirname + '/**/*.entity{.ts,.js}'], // Chemin vers les entités
-      synchronize: true, // Déconseillé en production, préférer les migrations
+      migrations:[__dirname + '/src/migrations/*.ts']
+      // synchronize: true, // Déconseillé en production, préférer les migrations
     }),
 
-    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],
