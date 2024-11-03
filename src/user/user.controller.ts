@@ -1,4 +1,49 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, NotFoundException } from '@nestjs/common';
+import { UserService } from './user.service';
+import { User } from './user.entity';
+import { UUID } from 'crypto';
 
-@Controller('user')
-export class UserController {}
+@Controller('users')
+export class UserController {
+  constructor(private readonly usersService: UserService) {}
+
+  //get all users
+  @Get()
+  async findAll(): Promise<User[]> {
+    return this.usersService.findAll();
+  }
+
+  //get user by id
+  @Get(':id')
+  async findOne(@Param('id') id: string): Promise<User> {
+    const user = await this.usersService.findOne(id);
+    if (!user) {
+      throw new NotFoundException('User does not exist!');
+    } else {
+      return user;
+    }
+  }
+
+  //create user
+  @Post()
+  async create(@Body() user: User): Promise<User> {
+    return this.usersService.create(user);
+  }
+
+  //update user
+  @Put(':id')
+  async update (@Param('id') id: string, @Body() user: User): Promise<any> {
+    return this.usersService.update(id, user);
+  }
+
+  //delete user
+  @Delete(':id')
+  async delete(@Param('id') id: string): Promise<any> {
+    //handle error if user does not exist
+    const user = await this.usersService.findOne(id);
+    if (!user) {
+      throw new NotFoundException('User does not exist!');
+    }
+    return this.usersService.delete(id);
+  }
+}

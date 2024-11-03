@@ -26,6 +26,7 @@ console.log(process.env.DB_NAME || '')
       migrations:[__dirname + '/src/migrations/*.ts']
       // synchronize: true, // Déconseillé en production, préférer les migrations
     }),
+    UserModule,
 
   ],
   controllers: [AppController],
