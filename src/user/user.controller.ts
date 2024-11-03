@@ -14,9 +14,19 @@ export class UserController {
   }
 
   //get user by id
-  @Get(':id')
-  async findOne(@Param('id') id: string): Promise<User> {
-    const user = await this.usersService.findOne(id);
+  // @Get(':id')
+  // async findOne(@Param('id') id: string): Promise<User> {
+  //   const user = await this.usersService.findOne(id);
+  //   if (!user) {
+  //     throw new NotFoundException('User does not exist!');
+  //   } else {
+  //     return user;
+  //   }
+  // }
+
+  @Get(":email")
+  async findOne_by_email(@Param('email') email: string): Promise<User> {
+    const user = await this.usersService.findOne_by_email(email);
     if (!user) {
       throw new NotFoundException('User does not exist!');
     } else {

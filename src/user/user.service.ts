@@ -20,8 +20,12 @@ export class UserService {
     return this.userRepository.findOne({ where: { id } });
   }
 
+  async findOne_by_email(email: string): Promise<User> {
+    return this.userRepository.findOne({ where: {email}});
+  }
+
   async create(user: Partial<User>): Promise<User> {
-    const password = await hashingPassword(user.password)
+    const password = await hashingPassword(user.password);
     const newuser = this.userRepository.create({...user, password});
     return this.userRepository.save(newuser);
   }

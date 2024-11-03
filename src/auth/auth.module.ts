@@ -5,6 +5,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { config as dotenvConfig } from 'dotenv';
 import { User } from '../user/user.entity';
 import { PassportModule } from '@nestjs/passport';
+import { UserModule } from 'src/user/user.module';
 
 dotenvConfig()
 
@@ -16,6 +17,7 @@ dotenvConfig()
       signOptions: { expiresIn: process.env.JWT_EXPIRATION_TIME },
     }),
     PassportModule,
+    UserModule,
   ],
   providers: [AuthService],
   exports: [AuthService],
