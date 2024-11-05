@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Put, Param, Delete, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, NotFoundException, Query } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './user.entity';
 import { UUID } from 'crypto';
@@ -14,18 +14,20 @@ export class UserController {
   }
 
   //get user by id
-  // @Get(':id')
-  // async findOne(@Param('id') id: string): Promise<User> {
-  //   const user = await this.usersService.findOne(id);
-  //   if (!user) {
-  //     throw new NotFoundException('User does not exist!');
-  //   } else {
-  //     return user;
-  //   }
-  // }
+  @Get(':id')
+  async findOne(@Param('id') id: string): Promise<User> {
+    const user = await this.usersService.findOne(id);
+    if (!user) {
+      throw new NotFoundException('User does not exist!');
+    } else {
+      return user;
+    }
+  }
 
-  @Get(":email")
-  async findOne_by_email(@Param('email') email: string): Promise<User> {
+  //make request parameter here for getting user by mail to get dynamic routing and avoid conflict
+  // with get by id 
+  @Get()
+  async findOne_by_email(@Query('email') email: string): Promise<User> {
     const user = await this.usersService.findOne_by_email(email);
     if (!user) {
       throw new NotFoundException('User does not exist!');

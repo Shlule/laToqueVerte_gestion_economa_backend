@@ -12,6 +12,7 @@ export class AuthController {
 
   @Post('login')
   async login(@Body('email') email: string, @Body('password') password: string) {
+    console.log("je sios dans le auth controllew")
     return this.authService.login(email, password);
   }
 }

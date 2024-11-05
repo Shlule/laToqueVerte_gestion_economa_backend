@@ -5,6 +5,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { IngredientModule } from './ingredient/ingredient.module';
+import { RecipeModule } from './recipe/recipe.module';
+import { RecipeIngredientModule } from './recipe-ingredient/recipe-ingredient.module';
+import { StockModule } from './stock/stock.module';
 
 console.log(process.env.DB_NAME || '')
 @Module({
@@ -27,6 +31,10 @@ console.log(process.env.DB_NAME || '')
       // synchronize: true, // Déconseillé en production, préférer les migrations
     }),
     UserModule,
+    IngredientModule,
+    RecipeModule,
+    RecipeIngredientModule,
+    StockModule,
 
   ],
   controllers: [AppController],
