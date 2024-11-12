@@ -1,15 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
-import { Ingredient } from './ingredient.entity';
-import { IngredientService } from './ingredient.service';
+import { Controller } from '@nestjs/common';
 
-@Controller('ingredients')
-export class IngredientController {
-    constructor(private readonly ingredientsService: IngredientService){}
-
-    // CRUD For Ingredient
-    @Get()
-    async findAll(): Promise<Ingredient[]>{
-        return this.ingredientsService.findall();
-    }
-
-}
+@Controller('ingredient')
+export class IngredientController {}

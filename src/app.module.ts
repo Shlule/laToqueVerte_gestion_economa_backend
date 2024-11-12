@@ -5,10 +5,12 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
-import { IngredientModule } from './ingredient/ingredient.module';
 import { RecipeModule } from './recipe/recipe.module';
 import { RecipeIngredientModule } from './recipe-ingredient/recipe-ingredient.module';
 import { StockModule } from './stock/stock.module';
+import { IngredientModule } from './ingredient/ingredient.module';
+import { IngredientService } from './ingredient/ingredient.service';
+import { IngredientController } from './ingredient/ingredient.controller';
 
 console.log(process.env.DB_NAME || '')
 @Module({
@@ -22,7 +24,7 @@ console.log(process.env.DB_NAME || '')
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,
-      port: parseInt(process.env.DB_PORT, 10),
+      port: parseInt(process.env.DB_PORT, 5432),
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD || '',
       database: process.env.DB_NAME,
@@ -37,7 +39,7 @@ console.log(process.env.DB_NAME || '')
     StockModule,
 
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, IngredientController],
+  providers: [AppService, IngredientService],
 })
 export class AppModule {}
