@@ -8,9 +8,9 @@ import { AuthModule } from './auth/auth.module';
 import { RecipeModule } from './recipe/recipe.module';
 import { RecipeIngredientModule } from './recipe-ingredient/recipe-ingredient.module';
 import { StockModule } from './stock/stock.module';
-import { IngredientModule } from './ingredient/ingredient.module';
 import { IngredientService } from './ingredient/ingredient.service';
 import { IngredientController } from './ingredient/ingredient.controller';
+import { IngredientModule } from './ingredient/ingredient.module';
 
 console.log(process.env.DB_NAME || '')
 @Module({
@@ -39,7 +39,7 @@ console.log(process.env.DB_NAME || '')
     StockModule,
 
   ],
-  controllers: [AppController, IngredientController],
-  providers: [AppService, IngredientService],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}

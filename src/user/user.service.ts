@@ -26,8 +26,8 @@ export class UserService {
 
   async create(user: Partial<User>): Promise<User> {
     const password = await hashingPassword(user.password);
-    const newuser = this.userRepository.create({...user, password});
-    return this.userRepository.save(newuser);
+    const newUser = this.userRepository.create({...user, password});
+    return this.userRepository.save(newUser);
   }
 
   async update(id: string, user: Partial<User>): Promise<User> {
