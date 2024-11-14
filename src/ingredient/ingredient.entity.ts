@@ -11,14 +11,14 @@ export class Ingredient {
     name: string;
 
     @Column('decimal',{precision:10, scale:2})
-    pricePerKg: number;
+    pricePerUnit: number;
 
     @Column({
         type: 'enum',
-        enum: ['kg','g','L','ml','unit'],
+        enum: ['kg','g','unit'],
         default: 'unit',
     })
-    unit: 'kg' | 'g' | 'L' | 'ml' | 'unit';
+    unitType: 'kg' | 'g' | 'unit';
 
     @OneToMany(() =>RecipeIngredient,(recipeIngredient) => recipeIngredient.ingredient)
     recipeIngredients: RecipeIngredient[];

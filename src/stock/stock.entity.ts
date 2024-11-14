@@ -16,4 +16,11 @@ export class Stock{
     @Column()
     expirationDate: Date
 
+    @Column({
+        type: 'enum',
+        enum: ['kg','g','unit'],
+        default: 'unit',
+    })
+    unit: 'kg' | 'g' | 'unit';
+
 }

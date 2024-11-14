@@ -4,7 +4,6 @@ import { DataSource, DataSourceOptions } from "typeorm";
 
 
 dotenvConfig();
-console.log(process.env.DB_USER)
 
 
 const config = {
