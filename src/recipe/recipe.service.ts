@@ -22,8 +22,8 @@ export class RecipeService {
     return this.recipeRepository.find();
   }
 
-  async findOne(id: string): Promise<Recipe> {
-    return this.recipeRepository.findOne({ where: { id } });
+  async findOne(recipeId: string): Promise<Recipe> {
+    return this.recipeRepository.findOne({ where: { id: recipeId } });
   }
 
   async findOne_by_name(name: string): Promise<Recipe> {
@@ -31,31 +31,34 @@ export class RecipeService {
   }
 
   //@ TODO create a ispossible function to calculate if recipe is possible 
-  async create(recipe: CreateRecipeDto): Promise<Recipe> {
-    const {name, ingredients} = recipe;
-    
-    let totalCost = 0;
-    let isPossible = false;
+  async create(recipe: Partial<Recipe>): Promise<Recipe> {
+    const newRecipe = this.recipeRepository.create(recipe);
+    const savedRecipe = await this.recipeRepository.save(newRecipe);
+    const possible = await this.isPossible(savedRecipe.id);
+    const cost = await this.calculateRecipeCost(savedRecipe.id);
 
-    for(const{ingredientId, quantityNeeded} of ingredients){
-      const stock = await this.stockRepository.findOne({
-        where: {ingredient: {id: ingredientId}},
-        relations:['ingredient'],
-      });
+    savedRecipe.cost = cost;
+    savedRecipe.isPossible = possible;
 
-      if(!stock){
-        throw new BadRequestException(`L'ingrédient ${ingredientId} n'existe pas dans le stock.`);
-      }
-    }
-    return null
-    
-    // const newRecipe = this.recipeRepository.create(recipe.);
-    // return this.recipeRepository.save(newRecipe);
+    return this.recipeRepository.save(savedRecipe);
   }
 
-  async update(id: string, user: Partial<Recipe>): Promise<Recipe> {
-    await this.recipeRepository.update(id, user);
-    return this.recipeRepository.findOne({ where: { id } });
+  async update(recipeId: string, updatedData: Partial<Recipe>): Promise<Recipe> {
+    await this.recipeRepository.update(recipeId, updatedData);
+
+    if(updatedData.recipeIngredients){
+      const updatedRecipe = await this.recipeRepository.findOne({where: {id: recipeId}});
+
+      const possible = await this.isPossible(recipeId);
+      const cost = await this.calculateRecipeCost(recipeId);
+
+      updatedRecipe.isPossible = possible;
+      updatedRecipe.cost = cost;
+
+      return this.recipeRepository.save(updatedRecipe)
+    }
+    
+    return this.recipeRepository.findOne({ where: { id: recipeId } });
   }
 
   async delete(id: string): Promise<void> {
@@ -96,6 +99,38 @@ export class RecipeService {
       totalCost += convertedQuantity * pricePerUnit
     }
     return parseFloat(totalCost.toFixed(2));
+  }
+
+  async isPossible(recipeId: string): Promise<boolean>{
+    const recipeIngredients = await this.recipeIngredientRepository
+      .createQueryBuilder('ri')
+      .leftJoinAndSelect('ri.ingredient', 'ingredient')
+      .leftJoinAndSelect('ingredient.stocks', 'stock')
+      .where('re.recipe.id = recipeId', {recipeId})
+      .getMany();
+
+    for(const ri of recipeIngredients){
+      const {quantityNeeded, unit} = ri;
+      const ingredientStock = ri.ingredient.stock;
+
+      // calculate all available quantity in stocks for this ingredients
+      let totalAvailable = 0;
+      for(const stock of ingredientStock){
+        if (stock.unit === unit) {
+          totalAvailable += stock.quantity;
+        } else if (stock.unit === 'g' && unit === 'kg') {
+          totalAvailable += stock.quantity / 1000; // Convertit g -> kg
+        } else if (stock.unit === 'kg' && unit === 'g') {
+          totalAvailable += stock.quantity * 1000; // Convertit kg -> g
+        } else {
+          console.warn(`Incompatibilité d'unité pour l'ingrédient ${ri.ingredient.name}`);
+        }
+      }
+      if(totalAvailable < quantityNeeded){
+        return false;
+      }
+    }
+    return true;
   }
 
 }
