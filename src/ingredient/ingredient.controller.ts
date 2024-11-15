@@ -24,17 +24,17 @@ export class IngredientController {
     }
   }
 
-  //make request parameter here for getting user by mail to get dynamic routing and avoid conflict
+  // make request parameter here for getting user by mail to get dynamic routing and avoid conflict
   // with get by id 
-//   @Get()
-//   async findOne_by_email(@Query('name') name: string): Promise<Ingredient> {
-//     const user = await this.ingredientService.findOne_by_name(name);
-//     if (!user) {
-//       throw new NotFoundException('Ingredient does not exist!');
-//     } else {
-//       return user;
-//     }
-//   }
+  @Get()
+  async findOneByName(@Query('name') name: string): Promise<Ingredient> {
+    const user = await this.ingredientService.findOneByName(name);
+    if (!user) {
+      throw new NotFoundException('Ingredient does not exist!');
+    } else {
+      return user;
+    }
+  }
 
   //create user
   @Post()

@@ -14,11 +14,11 @@ export class IngredientService {
         return this.ingredientRepository.find();
       }
     
-      async findOne(id: string): Promise<Ingredient> {
-        return this.ingredientRepository.findOne({ where: { id } });
+      async findOne(ingredientId: string): Promise<Ingredient> {
+        return this.ingredientRepository.findOne({ where: { id: ingredientId } });
       }
     
-      async findOne_by_name(name: string): Promise<Ingredient> {
+      async findOneByName(name: string): Promise<Ingredient> {
         return this.ingredientRepository.findOne({ where: {name}});
       }
     
@@ -27,13 +27,13 @@ export class IngredientService {
         return this.ingredientRepository.save(newIngredient);
       }
     
-      async update(id: string, user: Partial<Ingredient>): Promise<Ingredient> {
-        await this.ingredientRepository.update(id, user);
-        return this.ingredientRepository.findOne({ where: { id } });
+      async update(ingredientId: string, ingredientData: Partial<Ingredient>): Promise<Ingredient> {
+        await this.ingredientRepository.update(ingredientId, ingredientData);
+        return this.ingredientRepository.findOne({ where: { id: ingredientId } });
       }
     
-      async delete(id: string): Promise<void> {
-        await this.ingredientRepository.delete(id);
+      async delete(ingredientId: string): Promise<void> {
+        await this.ingredientRepository.delete(ingredientId);
       }
 
 }
