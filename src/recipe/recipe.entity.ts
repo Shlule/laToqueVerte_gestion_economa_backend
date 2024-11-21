@@ -12,9 +12,9 @@ export class Recipe{
     @Column({default: false})
     isPossible: boolean;
 
-    @Column('decimal',{precision: 10, scale:2})
+    @Column('decimal',{precision: 10, scale:2, nullable: true})
     cost:number;
 
-    @OneToMany(() => RecipeIngredient, (recipeIngredient) => recipeIngredient.recipe)
+    @OneToMany(() => RecipeIngredient, (recipeIngredient) => recipeIngredient.recipe, {nullable: true, cascade: true, eager: true})
     recipeIngredients: RecipeIngredient[];
 }

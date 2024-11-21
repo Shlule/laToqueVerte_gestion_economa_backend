@@ -8,10 +8,10 @@ export class RecipeIngredient{
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @ManyToOne(() => Recipe, (recipe) => recipe.recipeIngredients)
+    @ManyToOne(() => Recipe, (recipe) => recipe.recipeIngredients, {onDelete: 'CASCADE'})
     recipe: Recipe;
 
-    @ManyToOne(() => Ingredient, (ingredient) => ingredient.recipeIngredients)
+    @ManyToOne(() => Ingredient, (ingredient) => ingredient.recipeIngredients, {onDelete: 'CASCADE'})
     ingredient: Ingredient;
 
     @Column('decimal',{precision: 10 , scale: 2})

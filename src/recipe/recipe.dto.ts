@@ -1,20 +1,25 @@
-import { IsString, IsArray, ValidateNested, IsNumber } from 'class-validator';
+import { IsString, IsArray, IsNotEmpty, ValidateNested, IsUUID, IsDecimal } from 'class-validator';
 import { Type } from 'class-transformer';
 
-class IngredientQuantityDto {
-  @IsString()
+class RecipeIngredientDto {
+  @IsUUID()
   ingredientId: string;
 
-  @IsNumber()
+  @IsDecimal()
   quantityNeeded: number;
+
+  @IsString()
+  @IsNotEmpty()
+  unit: 'kg' | 'g' | 'unit';
 }
 
 export class CreateRecipeDto {
   @IsString()
+  @IsNotEmpty()
   name: string;
 
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => IngredientQuantityDto)
-  ingredients: IngredientQuantityDto[];
+  @Type(() => RecipeIngredientDto)
+  recipeIngredients: RecipeIngredientDto[];
 }

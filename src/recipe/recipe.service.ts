@@ -6,6 +6,7 @@ import { RecipeIngredient } from '../recipe-ingredient/recipeIngredient.entity';
 import { Stock } from '../stock/stock.entity';
 import { CreateRecipeDto } from './recipe.dto';
 import { grammetokg, kgtogramme } from 'src/utils/convertUnit';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class RecipeService {
@@ -23,22 +24,41 @@ export class RecipeService {
   }
 
   async findOne(recipeId: string): Promise<Recipe> {
-    return this.recipeRepository.findOne({ where: { id: recipeId } });
+    return this.recipeRepository.findOne({ where: { id: recipeId }});
   }
 
-  async findOne_by_name(name: string): Promise<Recipe> {
-    return this.recipeRepository.findOne({ where: {name: name}});
+  async getRecipeByName(name: string): Promise<Recipe[]> {
+    const stockList = this.recipeRepository
+        .createQueryBuilder('recipe')
+        .where('recipe.name = :name',{name})
+
+        return await stockList.getMany()
   }
 
-  //@ TODO create a ispossible function to calculate if recipe is possible 
-  async create(recipe: Partial<Recipe>): Promise<Recipe> {
-    const newRecipe = this.recipeRepository.create(recipe);
+  async create(recipe: CreateRecipeDto): Promise<Recipe> {
+    const { recipeIngredients, ...recipeData } = recipe;
+    const newRecipe = this.recipeRepository.create(recipeData);
     const savedRecipe = await this.recipeRepository.save(newRecipe);
-    const possible = await this.isPossible(savedRecipe.id);
-    const cost = await this.calculateRecipeCost(savedRecipe.id);
 
-    savedRecipe.cost = cost;
-    savedRecipe.isPossible = possible;
+    if (recipeIngredients) {
+      savedRecipe.recipeIngredients = recipeIngredients.map((ri) =>
+        this.recipeIngredientRepository.create({
+          ingredient: { id: ri.ingredientId },
+          quantityNeeded: ri.quantityNeeded,
+          unit: ri.unit,
+          recipe: savedRecipe,
+        }),
+
+      );
+    }    
+
+    console.log(savedRecipe)
+
+  // Calcul du coût et faisabilité après sauvegarde
+    // savedRecipe.cost = await this.calculateRecipeCost(savedRecipe.id);
+    // savedRecipe.isPossible = await this.isPossible(savedRecipe.id);
+
+    console.log(savedRecipe)
 
     return this.recipeRepository.save(savedRecipe);
   }
@@ -65,7 +85,6 @@ export class RecipeService {
     await this.recipeRepository.delete(id);
   }
 
-  // Méthode pour calculer le coût total d'une recette
   async calculateRecipeCost(recipeId: string): Promise<number> {
     const recipeIngredients = await this.recipeIngredientRepository
       .createQueryBuilder('ri')
@@ -106,7 +125,7 @@ export class RecipeService {
       .createQueryBuilder('ri')
       .leftJoinAndSelect('ri.ingredient', 'ingredient')
       .leftJoinAndSelect('ingredient.stocks', 'stock')
-      .where('re.recipe.id = recipeId', {recipeId})
+      .where('ri.recipe.id = recipeId', {recipeId})
       .getMany();
 
     for(const ri of recipeIngredients){
