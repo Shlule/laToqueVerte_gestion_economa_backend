@@ -12,6 +12,9 @@ export class Recipe{
     @Column({default: false})
     isPossible: boolean;
 
+    @Column('int')
+    numberOfPieces: number
+
     @Column('decimal',{precision: 10, scale:2, nullable: true})
     cost:number;
 

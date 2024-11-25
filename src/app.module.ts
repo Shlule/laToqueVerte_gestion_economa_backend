@@ -29,7 +29,8 @@ console.log(process.env.DB_NAME || '')
       password: process.env.DB_PASSWORD || '',
       database: process.env.DB_NAME,
       entities: [__dirname + '/**/*.entity{.ts,.js}'], // Chemin vers les entités
-      migrations:[__dirname + '/src/migrations/*.ts']
+      migrations:[__dirname + '/src/migrations/*.ts'],
+      logging: ["error",'query']
       // synchronize: true, // Déconseillé en production, préférer les migrations
     }),
     UserModule,

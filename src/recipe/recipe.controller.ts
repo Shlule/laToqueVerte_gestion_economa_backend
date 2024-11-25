@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Put, Param, Delete, NotFoundException, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, NotFoundException, Query, UseInterceptors } from '@nestjs/common';
 import { RecipeService } from './recipe.service';
 import { Recipe } from './recipe.entity'
 import { CreateRecipeDto } from './recipe.dto';
+import { TransactionInterceptor } from 'src/common/transaction.interceptor';
 
 @Controller('recipes')
 export class RecipeController {
@@ -23,7 +24,7 @@ export class RecipeController {
   }
 
  
-  @Get('byName/:name')
+  @Get('name/:recipeName')
   async getRecipeByName(@Param('recipeName') recipeName: string): Promise<Recipe[]>{
     const recipes = await this.recipeService.getRecipeByName(recipeName);
     if(!recipes){

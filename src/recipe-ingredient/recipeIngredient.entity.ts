@@ -17,6 +17,9 @@ export class RecipeIngredient{
     @Column('decimal',{precision: 10 , scale: 2})
     quantityNeeded: number;
 
+    @Column('decimal',{precision: 10, scale: 2})
+    cost: number;
+
     @Column({
         type: 'enum',
         enum: ['kg','g','unit'],

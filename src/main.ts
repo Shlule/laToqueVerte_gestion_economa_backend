@@ -10,6 +10,7 @@ async function bootstrap() {
     allowedHeaders: 'Content-Type,Authorization', 
     credentials: true, 
   });
+  app.setGlobalPrefix('api');
   app.useGlobalFilters(new HttpExceptionFilter());
   await app.listen(3000);
 }

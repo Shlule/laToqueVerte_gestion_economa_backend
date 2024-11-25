@@ -20,6 +20,9 @@ export class Ingredient {
     })
     unitType: 'kg' | 'g' | 'unit';
 
+    @Column()
+    fournisseur: string;
+
     @OneToMany(() =>RecipeIngredient,(recipeIngredient) => recipeIngredient.ingredient)
     recipeIngredients: RecipeIngredient[];
 

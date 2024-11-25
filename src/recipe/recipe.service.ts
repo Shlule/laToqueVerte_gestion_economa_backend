@@ -7,32 +7,35 @@ import { Stock } from '../stock/stock.entity';
 import { CreateRecipeDto } from './recipe.dto';
 import { grammetokg, kgtogramme } from 'src/utils/convertUnit';
 import { v4 as uuidv4 } from 'uuid';
+import { RecipeIngredientService } from 'src/recipe-ingredient/recipe-ingredient.service';
+import { IngredientService } from 'src/ingredient/ingredient.service';
+import { RecipeRepository } from './recipe.repository';
 
 @Injectable()
 export class RecipeService {
   constructor(
     @InjectRepository(Recipe)
     private recipeRepository: Repository<Recipe>,
+    private testRecipeRepository: RecipeRepository,
     @InjectRepository(RecipeIngredient)
     private recipeIngredientRepository: Repository<RecipeIngredient>,
+    private recipeIngredientService: RecipeIngredientService,
+    private ingredientService: IngredientService,
     @InjectRepository(Stock)
     private stockRepository: Repository<Stock>,
   ) {}
 
   async findAll(): Promise<Recipe[]> {
-    return this.recipeRepository.find();
+    return this.testRecipeRepository.getAllRecipes();
   }
 
   async findOne(recipeId: string): Promise<Recipe> {
-    return this.recipeRepository.findOne({ where: { id: recipeId }});
+    return this.testRecipeRepository.getRecipe(recipeId);
   }
 
+  
   async getRecipeByName(name: string): Promise<Recipe[]> {
-    const stockList = this.recipeRepository
-        .createQueryBuilder('recipe')
-        .where('recipe.name = :name',{name})
-
-        return await stockList.getMany()
+    return this.testRecipeRepository.getRecipesByName(name)
   }
 
   async create(recipe: CreateRecipeDto): Promise<Recipe> {
@@ -40,27 +43,24 @@ export class RecipeService {
     const newRecipe = this.recipeRepository.create(recipeData);
     const savedRecipe = await this.recipeRepository.save(newRecipe);
 
-    if (recipeIngredients) {
-      savedRecipe.recipeIngredients = recipeIngredients.map((ri) =>
-        this.recipeIngredientRepository.create({
-          ingredient: { id: ri.ingredientId },
-          quantityNeeded: ri.quantityNeeded,
-          unit: ri.unit,
-          recipe: savedRecipe,
-        }),
 
-      );
-    }    
+    if(recipeIngredients){
+      for(const ingredient of recipeIngredients){
+        const ingredientData = await this.ingredientService.findOne(ingredient.ingredientId);
+        await this.recipeIngredientService.create({
+          ...ingredient,
+          ingredient: ingredientData,
+          recipe: savedRecipe
+        });
+      }
+    }
+    
+    savedRecipe.cost = await this.calculateRecipeCost(savedRecipe.id)
 
-    console.log(savedRecipe)
-
-  // Calcul du coût et faisabilité après sauvegarde
-    // savedRecipe.cost = await this.calculateRecipeCost(savedRecipe.id);
-    // savedRecipe.isPossible = await this.isPossible(savedRecipe.id);
-
-    console.log(savedRecipe)
-
-    return this.recipeRepository.save(savedRecipe);
+    return this.recipeRepository.findOne({
+      where: { id: savedRecipe.id },
+      relations: ['recipeIngredients'], 
+    });
   }
 
   async update(recipeId: string, updatedData: Partial<Recipe>): Promise<Recipe> {
@@ -94,6 +94,9 @@ export class RecipeService {
 
     let totalCost = 0;
     let hasIncompatibleUnit = false;
+
+    console.log('enter in calculatecost function')
+    console.log(recipeIngredients)
     
     
     for(const ri of recipeIngredients){
