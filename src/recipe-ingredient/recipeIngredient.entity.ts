@@ -11,7 +11,7 @@ export class RecipeIngredient{
     @ManyToOne(() => Recipe, (recipe) => recipe.recipeIngredients, {onDelete: 'CASCADE'})
     recipe: Recipe;
 
-    @ManyToOne(() => Ingredient, (ingredient) => ingredient.recipeIngredients, {onDelete: 'CASCADE'})
+    @ManyToOne(() => Ingredient, (ingredient) => ingredient.recipeIngredients, {onDelete: 'CASCADE', eager: true})
     ingredient: Ingredient;
 
     @Column('decimal',{precision: 10 , scale: 2})

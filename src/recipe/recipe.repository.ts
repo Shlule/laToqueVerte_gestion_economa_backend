@@ -4,6 +4,7 @@ import { Request } from "express";
 import { BaseRepository } from "src/common/base-repository";
 import { DataSource } from "typeorm";
 import { Recipe } from "./recipe.entity";
+import { CreateRecipeDto } from "./recipe.dto";
 
 @Injectable({scope: Scope.REQUEST})
 export class RecipeRepository extends BaseRepository{
@@ -20,12 +21,23 @@ export class RecipeRepository extends BaseRepository{
     }
 
     async getRecipesByName(name: string): Promise<Recipe[]>{
-        const stockList = this.getRepository(Recipe)
+        const recipeList = this.getRepository(Recipe)
         .createQueryBuilder('recipe')
         .where('recipe.name = :name',{name})
 
-        return await stockList.getMany()
+        return await recipeList.getMany()
     }
+
+    async createRecipe(recipe: CreateRecipeDto): Promise<Recipe>{
+        const {recipeIngredients, ...recipeData} = recipe
+        const newRecipe = await this.getRepository(Recipe).create(recipeData)
+        console.log(newRecipe)
+        return await this.getRepository(Recipe).save(newRecipe)
+    }
+
+    // async saveRecipe(recipe: Partial<Recipe>): Promise<Recipe>{
+    //     return await this.getRepository(Re)
+    // }
     
     async deleteRecipe(id: string){
         return await this.getRepository(Recipe).delete(id);

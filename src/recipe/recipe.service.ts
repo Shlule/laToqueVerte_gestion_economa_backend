@@ -10,6 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { RecipeIngredientService } from 'src/recipe-ingredient/recipe-ingredient.service';
 import { IngredientService } from 'src/ingredient/ingredient.service';
 import { RecipeRepository } from './recipe.repository';
+import { error } from 'console';
 
 @Injectable()
 export class RecipeService {
@@ -38,12 +39,36 @@ export class RecipeService {
     return this.testRecipeRepository.getRecipesByName(name)
   }
 
-  async create(recipe: CreateRecipeDto): Promise<Recipe> {
-    const { recipeIngredients, ...recipeData } = recipe;
-    const newRecipe = this.recipeRepository.create(recipeData);
-    const savedRecipe = await this.recipeRepository.save(newRecipe);
+  // async create(recipe: CreateRecipeDto): Promise<Recipe> {
+  //   const { recipeIngredients, ...recipeData } = recipe;
+  //   const newRecipe = this.recipeRepository.create(recipeData);
+  //   const savedRecipe = await this.recipeRepository.save(newRecipe);
 
 
+  //   if(recipeIngredients){
+  //     for(const ingredient of recipeIngredients){
+  //       const ingredientData = await this.ingredientService.findOne(ingredient.ingredientId);
+  //       await this.recipeIngredientService.create({
+  //         ...ingredient,
+  //         ingredient: ingredientData,
+  //         recipe: savedRecipe
+  //       });
+  //     }
+  //   }
+    
+  //   savedRecipe.cost = await this.calculateRecipeCost(savedRecipe.id)
+
+  //   return this.recipeRepository.findOne({
+  //     where: { id: savedRecipe.id },
+  //     relations: ['recipeIngredients'], 
+  //   });
+  // }
+
+  async create(recipe: CreateRecipeDto): Promise<Recipe>{
+    const {recipeIngredients, ...recipeData} = recipe
+    const savedRecipe = await this.testRecipeRepository.createRecipe(recipe)
+    console.log('je suis dans le recipe service')
+    console.log(savedRecipe)
     if(recipeIngredients){
       for(const ingredient of recipeIngredients){
         const ingredientData = await this.ingredientService.findOne(ingredient.ingredientId);
@@ -54,13 +79,9 @@ export class RecipeService {
         });
       }
     }
-    
-    savedRecipe.cost = await this.calculateRecipeCost(savedRecipe.id)
-
-    return this.recipeRepository.findOne({
-      where: { id: savedRecipe.id },
-      relations: ['recipeIngredients'], 
-    });
+    return await this.testRecipeRepository.getRecipe(savedRecipe.id)
+    // throw new Error('this is an error')
+      
   }
 
   async update(recipeId: string, updatedData: Partial<Recipe>): Promise<Recipe> {

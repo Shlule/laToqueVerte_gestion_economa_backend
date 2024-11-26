@@ -35,6 +35,7 @@ export class RecipeController {
   }
 
   @Post()
+  @UseInterceptors(TransactionInterceptor)
   async create(@Body() recipe: CreateRecipeDto): Promise<Recipe> {
     return this.recipeService.create(recipe);
   }

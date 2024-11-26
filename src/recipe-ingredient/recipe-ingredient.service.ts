@@ -4,12 +4,14 @@ import { RecipeIngredient } from './recipeIngredient.entity';
 import { Repository } from 'typeorm';
 import { IngredientService } from 'src/ingredient/ingredient.service';
 import { grammetokg, kgtogramme } from 'src/utils/convertUnit';
+import { RecipeIngredientRepository } from './recipe-ingredient.repository';
 
 @Injectable()
 export class RecipeIngredientService {
     constructor(
         @InjectRepository(RecipeIngredient)
         private recipeIngredientRepository: Repository<RecipeIngredient>,
+        private testRecipeIngredientRepository: RecipeIngredientRepository
     ){}
 
     async findAll(): Promise<RecipeIngredient[]>{
@@ -21,10 +23,12 @@ export class RecipeIngredientService {
     }
 
     async create(recipeIngredient: Partial<RecipeIngredient>): Promise<RecipeIngredient>{
-        const newRecipeIngredient = this.recipeIngredientRepository.create(recipeIngredient);
+        // const newRecipeIngredient = this.recipeIngredientRepository.create(recipeIngredient);
         const cost = await this.calculateCost(recipeIngredient);
-        console.log(cost)
-        return this.recipeIngredientRepository.save(newRecipeIngredient);
+        recipeIngredient.cost = cost
+        return await this.testRecipeIngredientRepository.createRecipeIngredient(recipeIngredient)
+        // newRecipeIngredient.cost = cost
+        // return this.recipeIngredientRepository.save(newRecipeIngredient);
     }
 
     async update(recipeIngredientId: string, recipeIngredientData: Partial<RecipeIngredient>): Promise<RecipeIngredient>{
@@ -55,10 +59,10 @@ export class RecipeIngredientService {
             if (unitType === 'unit' && unit !== 'unit') {
                 console.warn(`Incompatibilité d'unité pour l'ingrédient ${name}: attendu "unit", mais reçu "${unit}"`);
                 return null;
-                }
-
-            totalCost += convertedQuantity * pricePerUnit
+            }
+   
         }
+        totalCost += convertedQuantity * pricePerUnit
         return parseFloat(totalCost.toFixed(2))   
     }
 
