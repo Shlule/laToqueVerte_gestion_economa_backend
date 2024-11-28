@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put} from '@nestjs/common';
 import { RecipeIngredient } from './recipeIngredient.entity';
 import { RecipeIngredientService } from './recipe-ingredient.service';
+import MyNotFoundError from 'src/common/execption/notFound.execption';
 
 @Controller('recipe-ingredients')
 export class RecipeIngredientController {
@@ -18,6 +19,16 @@ export class RecipeIngredientController {
             throw new NotFoundException('RecipeIngredient does not exist!');
         } else{
             return recipeIngredient;
+        }
+    }
+
+    @Get('byrecipe/:recipeId')
+    async getAllByRecipe(@Param('recipeId') recipeId:string):Promise<RecipeIngredient[]>{
+        const recipeIngredients = await this.recipeIngredientService.getAllByRecipe(recipeId);
+        if(!recipeIngredients){
+            throw new MyNotFoundError('recipe',recipeId);
+        }else{
+            return recipeIngredients;
         }
     }
 

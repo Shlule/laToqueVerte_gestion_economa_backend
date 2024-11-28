@@ -11,7 +11,7 @@ export class StockService {
     ){}
 
     async findAll():Promise<Stock[]>{
-        return this.stockRepository.find();
+        return this.stockRepository.find({relations:['ingredient']});
     }
 
     async findOne(stockId: string): Promise<Stock>{

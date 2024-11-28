@@ -21,7 +21,6 @@ export class AuthService {
   }
 
   async login(email: string, password: string): Promise<string> {
-    console.log("je suis dans le service login")
     const user = await this.usersService.findOne_by_email(email);
     if (user && (await bcrypt.compare(password, user.password))) {
       // Générer et retourner un token JWT

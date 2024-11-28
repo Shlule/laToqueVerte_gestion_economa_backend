@@ -15,63 +15,44 @@ import { error } from 'console';
 @Injectable()
 export class RecipeService {
   constructor(
+    //use custom repository for transactionInterceptor use
     @InjectRepository(Recipe)
     private recipeRepository: Repository<Recipe>,
-    private testRecipeRepository: RecipeRepository,
+    private myRecipeRepository: RecipeRepository,
+
     @InjectRepository(RecipeIngredient)
     private recipeIngredientRepository: Repository<RecipeIngredient>,
     private recipeIngredientService: RecipeIngredientService,
     private ingredientService: IngredientService,
+
     @InjectRepository(Stock)
     private stockRepository: Repository<Stock>,
   ) {}
 
   async findAll(): Promise<Recipe[]> {
-    return this.testRecipeRepository.getAllRecipes();
+    return this.myRecipeRepository.getAllRecipes();
   }
 
   async findOne(recipeId: string): Promise<Recipe> {
-    return this.testRecipeRepository.getRecipe(recipeId);
+    return this.myRecipeRepository.getRecipe(recipeId);
   }
 
   
   async getRecipeByName(name: string): Promise<Recipe[]> {
-    return this.testRecipeRepository.getRecipesByName(name)
+    return this.myRecipeRepository.getRecipesByName(name)
   }
 
-  // async create(recipe: CreateRecipeDto): Promise<Recipe> {
-  //   const { recipeIngredients, ...recipeData } = recipe;
-  //   const newRecipe = this.recipeRepository.create(recipeData);
-  //   const savedRecipe = await this.recipeRepository.save(newRecipe);
-
-
-  //   if(recipeIngredients){
-  //     for(const ingredient of recipeIngredients){
-  //       const ingredientData = await this.ingredientService.findOne(ingredient.ingredientId);
-  //       await this.recipeIngredientService.create({
-  //         ...ingredient,
-  //         ingredient: ingredientData,
-  //         recipe: savedRecipe
-  //       });
-  //     }
-  //   }
-    
-  //   savedRecipe.cost = await this.calculateRecipeCost(savedRecipe.id)
-
-  //   return this.recipeRepository.findOne({
-  //     where: { id: savedRecipe.id },
-  //     relations: ['recipeIngredients'], 
-  //   });
-  // }
-
   async create(recipe: CreateRecipeDto): Promise<Recipe>{
-    const {recipeIngredients, ...recipeData} = recipe
-    const savedRecipe = await this.testRecipeRepository.createRecipe(recipe)
-    console.log('je suis dans le recipe service')
-    console.log(savedRecipe)
+    const {recipeIngredients} = recipe
+    const savedRecipe = await this.myRecipeRepository.createRecipe(recipe)
     if(recipeIngredients){
       for(const ingredient of recipeIngredients){
         const ingredientData = await this.ingredientService.findOne(ingredient.ingredientId);
+        if(!ingredientData){
+          throw new BadRequestException(
+            `Invalid ingredient: Ingredient ID ${ingredient.ingredientId || 'unknown'} is not valid`,
+          )
+        }
         await this.recipeIngredientService.create({
           ...ingredient,
           ingredient: ingredientData,
@@ -79,8 +60,12 @@ export class RecipeService {
         });
       }
     }
-    return await this.testRecipeRepository.getRecipe(savedRecipe.id)
-    // throw new Error('this is an error')
+    await this.myRecipeRepository.saveRecipe(savedRecipe);
+    
+    const cost = await this.calculateRecipeCost(savedRecipe.id);
+    const ispossible = await this.isPossible(savedRecipe.id);
+    savedRecipe.cost = cost;
+    throw new Error
       
   }
 
@@ -93,8 +78,8 @@ export class RecipeService {
       const possible = await this.isPossible(recipeId);
       const cost = await this.calculateRecipeCost(recipeId);
 
-      updatedRecipe.isPossible = possible;
-      updatedRecipe.cost = cost;
+      // updatedRecipe.isPossible = possible;
+      // updatedRecipe.cost = cost;
 
       return this.recipeRepository.save(updatedRecipe)
     }
@@ -103,77 +88,33 @@ export class RecipeService {
   }
 
   async delete(id: string): Promise<void> {
-    await this.recipeRepository.delete(id);
+    await this.myRecipeRepository.deleteRecipe(id);
   }
 
-  async calculateRecipeCost(recipeId: string): Promise<number> {
-    const recipeIngredients = await this.recipeIngredientRepository
-      .createQueryBuilder('ri')
-      .leftJoinAndSelect('ri.ingredient', 'ingredient')
-      .where('ri.recipe.id = :recipeId', { recipeId })
-      .getMany();
+  async calculateRecipeCost(recipeId: string):Promise<number>{
+    const recipe = await this.myRecipeRepository.getRecipe(recipeId)
 
-    let totalCost = 0;
-    let hasIncompatibleUnit = false;
+    const totalCost = recipe.recipeIngredients.reduce((sum,ingredient) =>{
+      return sum + Number(ingredient.cost);
+    }, 0)
 
-    console.log('enter in calculatecost function')
-    console.log(recipeIngredients)
+    recipe.cost = totalCost;
+    return totalCost;
+  }
+
+
+  // must use the service of recipeIngredient 
+  async isPossible(recipeId: string){
+    console.log('prout')
+    const test = await this.recipeIngredientService.getAllByRecipeWithStocks(recipeId)
+    console.log(test)
+  }
+  //   console.log('je suis juste avant la reauest de is possibelS')
+  //   const recipe = await this.myRecipeRepository.getRecipe(recipeId)
     
-    
-    for(const ri of recipeIngredients){
-      const { quantityNeeded, unit} = ri;
-      const {pricePerUnit, unitType}= ri.ingredient;
-
-      let convertedQuantity = quantityNeeded; 
-
-      if (unitType === 'unit' && unit !== 'unit') {
-      console.warn(`Incompatibilité d'unité pour l'ingrédient ${ri.ingredient.name}: attendu "unit", mais reçu "${unit}"`);
-      hasIncompatibleUnit = true;
-      return null;
-      }
-
-      if(unitType === 'kg' && unit === 'g'){
-        convertedQuantity = grammetokg(convertedQuantity)
-      }
-
-      if(unitType === 'g' && unit === 'kg'){
-        convertedQuantity = kgtogramme(convertedQuantity)
-      }
-      totalCost += convertedQuantity * pricePerUnit
-    }
-    return parseFloat(totalCost.toFixed(2));
-  }
-
-  async isPossible(recipeId: string): Promise<boolean>{
-    const recipeIngredients = await this.recipeIngredientRepository
-      .createQueryBuilder('ri')
-      .leftJoinAndSelect('ri.ingredient', 'ingredient')
-      .leftJoinAndSelect('ingredient.stocks', 'stock')
-      .where('ri.recipe.id = recipeId', {recipeId})
-      .getMany();
-
-    for(const ri of recipeIngredients){
-      const {quantityNeeded, unit} = ri;
-      const ingredientStock = ri.ingredient.stock;
-
-      // calculate all available quantity in stocks for this ingredients
-      let totalAvailable = 0;
-      for(const stock of ingredientStock){
-        if (stock.unit === unit) {
-          totalAvailable += stock.quantity;
-        } else if (stock.unit === 'g' && unit === 'kg') {
-          totalAvailable += stock.quantity / 1000; // Convertit g -> kg
-        } else if (stock.unit === 'kg' && unit === 'g') {
-          totalAvailable += stock.quantity * 1000; // Convertit kg -> g
-        } else {
-          console.warn(`Incompatibilité d'unité pour l'ingrédient ${ri.ingredient.name}`);
-        }
-      }
-      if(totalAvailable < quantityNeeded){
-        return false;
-      }
-    }
-    return true;
-  }
-
+  //   const insufficientIngredients: string[] = []
+  //   for(const recipeIngredient of recipe.recipeIngredients){
+  //     const stocks = await.this
+  //   }
+  // }
 }

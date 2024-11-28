@@ -12,7 +12,6 @@ import { IngredientService } from './ingredient/ingredient.service';
 import { IngredientController } from './ingredient/ingredient.controller';
 import { IngredientModule } from './ingredient/ingredient.module';
 
-console.log(process.env.DB_NAME || '')
 @Module({
   imports: [
     // Charger les variables d'environnement
@@ -30,7 +29,7 @@ console.log(process.env.DB_NAME || '')
       database: process.env.DB_NAME,
       entities: [__dirname + '/**/*.entity{.ts,.js}'], // Chemin vers les entités
       migrations:[__dirname + '/src/migrations/*.ts'],
-      logging: ["error",'query']
+      logging: ["error","query"]
       // synchronize: true, // Déconseillé en production, préférer les migrations
     }),
     UserModule,

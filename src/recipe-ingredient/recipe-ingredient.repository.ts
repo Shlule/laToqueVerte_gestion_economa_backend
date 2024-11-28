@@ -4,6 +4,7 @@ import {REQUEST} from "@nestjs/core";
 import { BaseRepository } from "src/common/base-repository";
 import { DataSource } from "typeorm";
 import { RecipeIngredient } from "./recipeIngredient.entity";
+import { REPLCommand } from "repl";
 
 @Injectable({scope: Scope.REQUEST})
 export class RecipeIngredientRepository extends BaseRepository{
@@ -16,4 +17,22 @@ export class RecipeIngredientRepository extends BaseRepository{
         const newRecipeIngredient = await this.getRepository(RecipeIngredient).create(recipeIngredient);
         return await this.getRepository(RecipeIngredient).save(newRecipeIngredient);
     }
+
+    async getAllByRecipe(recipeId: string):Promise<RecipeIngredient[]>{
+        return await this.getRepository(RecipeIngredient)
+        .createQueryBuilder('recipeIngredient')
+        .leftJoinAndSelect('recipeIngredient.ingredient', 'ingredient')
+        .where('recipeIngredient.recipeId = :recipeId', { recipeId })
+        .getMany();
+    }
+
+    async getAllByRecipeWithStock(recipeId: string):Promise<RecipeIngredient[]>{
+        return await this.getRepository(RecipeIngredient)
+        .createQueryBuilder('recipeIngredient')
+        .leftJoinAndSelect('recipeIngredient.ingredient', 'ingredient')
+        .leftJoinAndSelect('ingredient.stock', 'stock')
+        .where('recipeIngredient.recipeId = :recipeId', { recipeId })
+        .getMany();
+    }
+    
 }
