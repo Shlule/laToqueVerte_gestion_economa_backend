@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Put, Param, Delete, NotFoundException, Query, UseInterceptors } from '@nestjs/common';
 import { RecipeService } from './recipe.service';
 import { Recipe } from './recipe.entity'
-import { CreateRecipeDto } from './recipe.dto';
+import { CreateRecipeDto, InsufficientIngredient } from './recipe.dto';
 import { TransactionInterceptor } from 'src/common/transaction.interceptor';
 
 @Controller('recipes')
@@ -32,6 +32,11 @@ export class RecipeController {
     } else{
       return recipes
     }
+  }
+
+  @Get(':id/insufficientIngredients')
+  async getInsufficientIngredient(@Param('id') id:string):Promise<InsufficientIngredient[]>{
+    return await this.recipeService.getInsufficientIngredient(id);
   }
 
   @Post()

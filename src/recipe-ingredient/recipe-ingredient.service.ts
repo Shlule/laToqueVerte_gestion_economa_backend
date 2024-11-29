@@ -1,9 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RecipeIngredient } from './recipeIngredient.entity';
 import { Repository } from 'typeorm';
-import { IngredientService } from 'src/ingredient/ingredient.service';
-import { grammetokg, kgtogramme } from 'src/utils/convertUnit';
+import { convertUnit } from 'src/utils/convertUnit';
 import { RecipeIngredientRepository } from './recipe-ingredient.repository';
 
 @Injectable()
@@ -51,24 +50,10 @@ export class RecipeIngredientService {
         const {unitType, pricePerUnit, name} = recipeIngredient.ingredient
         const {quantityNeeded, unit} = recipeIngredient
 
-        let convertedQuantity = quantityNeeded;
         let totalCost = 0;
 
-        if(unitType !== unit){
-            if(unitType === 'kg' && unit ==='g'){
-                convertedQuantity = grammetokg(convertedQuantity)
-            }
+        const convertedQuantity = convertUnit(quantityNeeded,unit,unitType);
 
-            if(unitType === 'g' && unit === 'kg'){
-                convertedQuantity= kgtogramme(convertedQuantity)
-            }
-
-            if (unitType === 'unit' && unit !== 'unit') {
-                console.warn(`Incompatibilité d'unité pour l'ingrédient ${name}: attendu "unit", mais reçu "${unit}"`);
-                return null;
-            }
-   
-        }
         totalCost += convertedQuantity * pricePerUnit
         return parseFloat(totalCost.toFixed(2))   
     }

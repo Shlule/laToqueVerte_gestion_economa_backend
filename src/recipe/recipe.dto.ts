@@ -23,3 +23,20 @@ export class CreateRecipeDto {
   @Type(() => RecipeIngredientDto)
   recipeIngredients: RecipeIngredientDto[];
 }
+
+export class InsufficientIngredient{
+
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @IsUUID()
+  ingredientId: string;
+
+  @IsDecimal()
+  missingQuantity: number;
+
+  @IsString()
+  unit: 'kg'|'g'|'unit';
+
+}
