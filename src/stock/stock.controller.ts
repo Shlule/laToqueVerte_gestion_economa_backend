@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Put, Param, Delete, NotFoundException, Que
 import { Stock } from './stock.entity';
 import { StockService } from './stock.service';
 
-@Controller('Stocks')
+@Controller('stocks')
 export class StockController {
   constructor(private readonly stockService: StockService) {}
 

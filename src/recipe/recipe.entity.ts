@@ -21,6 +21,6 @@ export class Recipe{
     @Column('decimal',{precision: 10, scale:2, nullable: true})
     cost:number;
 
-    @OneToMany(() => RecipeIngredient, (recipeIngredient) => recipeIngredient.recipe, {nullable: true, cascade: true, eager: true})
+    @OneToMany(() => RecipeIngredient, (recipeIngredient) => recipeIngredient.recipe, {nullable: true, cascade: true, eager: true ,onDelete:'SET NULL'})
     recipeIngredients: RecipeIngredient[];
 }
