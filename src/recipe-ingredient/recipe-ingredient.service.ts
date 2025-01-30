@@ -45,6 +45,10 @@ export class RecipeIngredientService {
         await this.recipeIngredientRepository.delete(recipeIngredientId);
     }
 
+    async deleteAllByRecipe(recipeId: string): Promise<void> {
+        await this.recipeIngredientRepository.delete({ recipe: { id: recipeId } });
+    }
+
     async calculateCost(recipeIngredient: Partial<RecipeIngredient>){
         
         const {unitType, pricePerUnit, name} = recipeIngredient.ingredient

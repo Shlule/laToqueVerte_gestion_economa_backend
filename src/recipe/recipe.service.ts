@@ -1,17 +1,13 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Recipe } from './recipe.entity';
 import { RecipeIngredient } from '../recipe-ingredient/recipeIngredient.entity';
-import { Stock } from '../stock/stock.entity';
 import { CreateRecipeDto, InsufficientIngredient } from './recipe.dto';
 import { convertUnit, grammetokg, kgtogramme } from 'src/utils/convertUnit';
-import { v4 as uuidv4 } from 'uuid';
 import { RecipeIngredientService } from 'src/recipe-ingredient/recipe-ingredient.service';
 import { IngredientService } from 'src/ingredient/ingredient.service';
 import { RecipeRepository } from './recipe.repository';
-import { error } from 'console';
-import { Ingredient } from 'src/ingredient/ingredient.entity';
 
 @Injectable()
 export class RecipeService {
@@ -26,8 +22,6 @@ export class RecipeService {
     private recipeIngredientService: RecipeIngredientService,
     private ingredientService: IngredientService,
 
-    @InjectRepository(Stock)
-    private stockRepository: Repository<Stock>,
   ) {}
 
   async findAll(): Promise<Recipe[]> {
@@ -72,22 +66,41 @@ export class RecipeService {
   }
 
   async update(recipeId: string, updatedData: Partial<Recipe>): Promise<Recipe> {
-    await this.recipeRepository.update(recipeId, updatedData);
-
-    if(updatedData.recipeIngredients){
-      const updatedRecipe = await this.recipeRepository.findOne({where: {id: recipeId}});
-
-      const insufficientIngredient = await this.getInsufficientIngredient(recipeId);
-      const cost = await this.calculateRecipeCost(recipeId);
-
-      updatedRecipe.insufficientIngredient = insufficientIngredient;
-      updatedRecipe.cost = cost;
-
-      return this.recipeRepository.save(updatedRecipe)
+  
+    const existingRecipe = await this.recipeRepository.findOne({ where: { id: recipeId }, relations: ['recipeIngredients'] });
+    if (!existingRecipe) {
+      throw new NotFoundException(`Recipe with ID ${recipeId} not found`);
     }
     
-    return this.recipeRepository.findOne({ where: { id: recipeId } });
-  }
+    // update simple properties 
+    if(updatedData.cost || updatedData.name || updatedData.numberOfPieces){
+      await this.recipeRepository.update(recipeId, { name: updatedData.name, numberOfPieces: updatedData.numberOfPieces });
+    }
+
+    //ANCHOR - update manually this field because typeOrm doesn't allow
+    // to modify one-to-many relation field
+    if (updatedData.recipeIngredients) {
+  
+      await this.recipeIngredientService.deleteAllByRecipe(recipeId);
+  
+      for (const ingredient of updatedData.recipeIngredients) {
+        await this.recipeIngredientService.create({
+          ...ingredient,
+          recipe: existingRecipe, 
+        });
+      }
+    }
+  
+    const cost = await this.calculateRecipeCost(recipeId);
+    const insufficientIngredient = await this.getInsufficientIngredient(recipeId);
+  
+    existingRecipe.cost = cost;
+    existingRecipe.insufficientIngredient = insufficientIngredient;
+    await this.recipeRepository.save(existingRecipe);
+  
+  
+    return this.recipeRepository.findOne({ where: { id: recipeId }, relations: ['recipeIngredients'] });
+  } 
 
   async delete(id: string): Promise<void> {
     await this.myRecipeRepository.deleteRecipe(id);
@@ -107,7 +120,6 @@ export class RecipeService {
 
   // must use the service of recipeIngredient 
   async getInsufficientIngredient(recipeId: string): Promise<InsufficientIngredient[]>{
-    console.log('prout')
     const recipeIngredients = await this.recipeIngredientService.getAllByRecipeWithStocks(recipeId)
     const insufficientIngredient: InsufficientIngredient[]= []
 
@@ -115,7 +127,6 @@ export class RecipeService {
       const {ingredient, quantityNeeded, unit} = recipeIngredient;
       
       let convertedQuantityNeeded = convertUnit(quantityNeeded,unit,ingredient.unitType);
-      console.log(convertedQuantityNeeded)
       if(!ingredient.stock || ingredient.stock.length === 0){
         insufficientIngredient.push({
           name: ingredient.name,
@@ -140,7 +151,6 @@ export class RecipeService {
         })
       }
     }
-    console.log(insufficientIngredient)
     return insufficientIngredient
   }
 }

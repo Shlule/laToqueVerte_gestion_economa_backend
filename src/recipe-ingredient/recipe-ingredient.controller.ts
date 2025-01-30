@@ -22,7 +22,7 @@ export class RecipeIngredientController {
         }
     }
 
-    @Get('byrecipe/:recipeId')
+    @Get('/byRecipe/:recipeId')
     async getAllByRecipe(@Param('recipeId') recipeId:string):Promise<RecipeIngredient[]>{
         const recipeIngredients = await this.recipeIngredientService.getAllByRecipe(recipeId);
         if(!recipeIngredients){

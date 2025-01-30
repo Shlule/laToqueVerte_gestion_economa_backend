@@ -55,8 +55,6 @@ export class RecipeRepository extends BaseRepository{
         .where('recipe.id = :recipeId',{recipeId})
         .getMany()
 
-        console.log(test)
-        console.log(recipeId)
         return test
     }
 }
