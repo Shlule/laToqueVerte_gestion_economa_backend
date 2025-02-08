@@ -1,7 +1,7 @@
 import { IsString, IsArray, IsNotEmpty, ValidateNested, IsUUID, IsDecimal } from 'class-validator';
 import { Type } from 'class-transformer';
 
-class RecipeIngredientDto {
+class RecipeIngredient {
   @IsUUID()
   ingredientId: string;
 
@@ -20,8 +20,8 @@ export class CreateRecipeDto {
 
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => RecipeIngredientDto)
-  recipeIngredients: RecipeIngredientDto[];
+  @Type(() => RecipeIngredient)
+  recipeIngredients: RecipeIngredient[];
 }
 
 export class InsufficientIngredient{

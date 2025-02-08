@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { Recipe } from './recipe.entity';
 import { RecipeIngredient } from '../recipe-ingredient/recipeIngredient.entity';
 import { CreateRecipeDto, InsufficientIngredient } from './recipe.dto';
-import { convertUnit, grammetokg, kgtogramme } from 'src/utils/convertUnit';
+import { convertUnit } from 'src/utils/convertUnit';
 import { RecipeIngredientService } from 'src/recipe-ingredient/recipe-ingredient.service';
 import { IngredientService } from 'src/ingredient/ingredient.service';
 import { RecipeRepository } from './recipe.repository';
@@ -65,42 +65,90 @@ export class RecipeService {
       
   }
 
+  // async update(recipeId: string, updatedData: Partial<Recipe>): Promise<Recipe> {
+  
+  //   const existingRecipe = await this.recipeRepository.findOne({ where: { id: recipeId }, relations: ['recipeIngredients'] });
+  //   if (!existingRecipe) {
+  //     throw new NotFoundException(`Recipe with ID ${recipeId} not found`);
+  //   }
+    
+  //   // update simple properties 
+  //   if(updatedData.cost || updatedData.name || updatedData.numberOfPieces){
+  //     await this.recipeRepository.update(recipeId, { name: updatedData.name, numberOfPieces: updatedData.numberOfPieces });
+  //   }
+
+  //   //ANCHOR - update manually this field because typeOrm doesn't allow
+  //   // to modify one-to-many relation field
+
+  //   // don't forget to get the ingredient field full of stuff inside recipeIngredientData
+  //   if (updatedData.recipeIngredients) {
+  
+  //     await this.recipeIngredientService.deleteAllByRecipe(recipeId);
+  
+  //     for (const ingredient of updatedData.recipeIngredients) {
+  //       await this.recipeIngredientService.create({
+  //         ...ingredient,
+  //         recipe: existingRecipe, 
+  //       });
+  //     }
+  //   }
+  
+  //   const cost = await this.calculateRecipeCost(recipeId);
+  //   const insufficientIngredient = await this.getInsufficientIngredient(recipeId);
+  
+  //   existingRecipe.cost = cost;
+  //   existingRecipe.insufficientIngredient = insufficientIngredient;
+  //   await this.recipeRepository.save(existingRecipe);
+  
+  
+  //   return this.recipeRepository.findOne({ where: { id: recipeId }, relations: ['recipeIngredients'] });
+  // } 
+
   async update(recipeId: string, updatedData: Partial<Recipe>): Promise<Recipe> {
   
-    const existingRecipe = await this.recipeRepository.findOne({ where: { id: recipeId }, relations: ['recipeIngredients'] });
+    const existingRecipe = await this.recipeRepository.findOne({ 
+        where: { id: recipeId }, 
+        relations: ['recipeIngredients'] 
+    });
+
     if (!existingRecipe) {
-      throw new NotFoundException(`Recipe with ID ${recipeId} not found`);
+        throw new NotFoundException(`Recipe with ID ${recipeId} not found`);
     }
     
-    // update simple properties 
-    if(updatedData.cost || updatedData.name || updatedData.numberOfPieces){
-      await this.recipeRepository.update(recipeId, { name: updatedData.name, numberOfPieces: updatedData.numberOfPieces });
+    if (updatedData.cost || updatedData.name || updatedData.numberOfPieces) {
+        await this.recipeRepository.update(recipeId, { 
+            name: updatedData.name, 
+            numberOfPieces: updatedData.numberOfPieces 
+        });
     }
 
-    //ANCHOR - update manually this field because typeOrm doesn't allow
-    // to modify one-to-many relation field
     if (updatedData.recipeIngredients) {
-  
-      await this.recipeIngredientService.deleteAllByRecipe(recipeId);
-  
-      for (const ingredient of updatedData.recipeIngredients) {
-        await this.recipeIngredientService.create({
-          ...ingredient,
-          recipe: existingRecipe, 
-        });
-      }
+        await this.recipeIngredientService.deleteAllByRecipe(recipeId);
+
+        await Promise.all(
+            updatedData.recipeIngredients.map(ingredient =>
+                this.recipeIngredientService.create({
+                    ...ingredient,
+                    recipe: existingRecipe, 
+                })
+            )
+        );
     }
-  
-    const cost = await this.calculateRecipeCost(recipeId);
-    const insufficientIngredient = await this.getInsufficientIngredient(recipeId);
-  
+
+    const [cost, insufficientIngredient] = await Promise.all([
+        this.calculateRecipeCost(recipeId),
+        this.getInsufficientIngredient(recipeId)
+    ]);
+
     existingRecipe.cost = cost;
     existingRecipe.insufficientIngredient = insufficientIngredient;
     await this.recipeRepository.save(existingRecipe);
-  
-  
-    return this.recipeRepository.findOne({ where: { id: recipeId }, relations: ['recipeIngredients'] });
-  } 
+
+    return this.recipeRepository.findOne({ 
+        where: { id: recipeId }, 
+        relations: ['recipeIngredients'] 
+    });
+}
 
   async delete(id: string): Promise<void> {
     await this.myRecipeRepository.deleteRecipe(id);

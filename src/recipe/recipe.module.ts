@@ -9,11 +9,12 @@ import {Stock} from 'src/stock/stock.entity'
 import { RecipeIngredientModule } from 'src/recipe-ingredient/recipe-ingredient.module';
 import { IngredientModule } from 'src/ingredient/ingredient.module';
 import { RecipeRepository } from './recipe.repository';
+import { RecipeCostService } from './recipeCostService';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Recipe,RecipeIngredient,Ingredient,Stock]),RecipeIngredientModule, IngredientModule],
   controllers: [RecipeController],
-  providers: [RecipeService, RecipeRepository],
-  exports: [RecipeService],
+  providers: [RecipeService, RecipeRepository, RecipeCostService],
+  exports: [RecipeService,RecipeCostService],
 })
 export class RecipeModule {}

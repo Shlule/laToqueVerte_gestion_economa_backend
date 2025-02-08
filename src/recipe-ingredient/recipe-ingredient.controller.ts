@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put} fro
 import { RecipeIngredient } from './recipeIngredient.entity';
 import { RecipeIngredientService } from './recipe-ingredient.service';
 import MyNotFoundError from 'src/common/execption/notFound.execption';
+import { AddToRecipeDto } from './recipe-ingredient.dto';
 
 @Controller('recipe-ingredients')
 export class RecipeIngredientController {
@@ -33,8 +34,8 @@ export class RecipeIngredientController {
     }
 
     @Post()
-    async create(@Body() recipeIngredient: RecipeIngredient): Promise<RecipeIngredient>{
-        return this.recipeIngredientService.create(recipeIngredient);
+async addToRecipe(@Body() recipeIngredient: AddToRecipeDto): Promise<RecipeIngredient>{
+        return this.recipeIngredientService.addToRecipe(recipeIngredient);
     }
 
     @Put(':id')
