@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RecipeIngredient } from './recipeIngredient.entity';
+import { InsufficientIngredient } from './recipe-ingredient.dto';
 import { Repository } from 'typeorm';
 import { convertUnit } from 'src/utils/convertUnit';
 import { RecipeIngredientRepository } from './recipe-ingredient.repository';
@@ -8,7 +9,6 @@ import { Recipe } from 'src/recipe/recipe.entity';
 import { RecipeCostService } from 'src/recipe/recipeCostService';
 import {AddToRecipeDto} from './recipe-ingredient.dto'
 import { Ingredient } from 'src/ingredient/ingredient.entity';
-import { IngredientService } from 'src/ingredient/ingredient.service';
 
 @Injectable()
 export class RecipeIngredientService {
@@ -20,6 +20,7 @@ export class RecipeIngredientService {
         @InjectRepository(Recipe)
         private readonly recipeRepository: Repository<Recipe>,
         private readonly recipeCostService: RecipeCostService,
+        // private readonly recipeInsufficientIngredientService: RecipeInsufficientIngredientService,
 
         @InjectRepository(Ingredient)
         private readonly ingredientRepository: Repository<Ingredient>,
@@ -105,6 +106,10 @@ export class RecipeIngredientService {
             await this.recipeRepository.update(updatedRecipeIngredient.recipe.id, { cost: newCost });
         }   
 
+        const test = await this.getInsufficientIngredient(updatedRecipeIngredient.recipe.id)
+        console.log('bonjour je suis dsan le reicpeIngredient service ')
+        console.log(test)
+
         return this.recipeIngredientRepository.findOne({ where: { id: recipeIngredientId } });
     }
 
@@ -141,5 +146,44 @@ export class RecipeIngredientService {
         totalCost += convertedQuantity * pricePerUnit
         return parseFloat(totalCost.toFixed(2))   
     }
+
+    //SECTION - this fonction normaly be inside recipeModule but here for convenience
+    // and avoid circular import
+    async getInsufficientIngredient(recipeId: string): Promise<InsufficientIngredient[]>{
+    
+        const recipeIngredients = await this.getAllByRecipeWithStocks(recipeId)
+        const insufficientIngredient: InsufficientIngredient[]= []
+    
+        for(const recipeIngredient of recipeIngredients){
+          const {ingredient, quantityNeeded, unit} = recipeIngredient;
+          
+          let convertedQuantityNeeded = convertUnit(quantityNeeded,unit,ingredient.unitType);
+          if(!ingredient.stock || ingredient.stock.length === 0){
+            insufficientIngredient.push({
+              name: ingredient.name,
+              ingredientId: ingredient.id,
+              missingQuantity: quantityNeeded,
+              unit: unit,
+            });
+            continue;
+          }
+    
+          const totalAvailable = ingredient.stock.reduce(
+            (sum,stock) => sum + stock.quantity, 0
+          )
+          if(totalAvailable < convertedQuantityNeeded){
+            const missingQuantity = convertedQuantityNeeded - totalAvailable; 
+            insufficientIngredient.push({
+              name: ingredient.name,
+              ingredientId: ingredient.id,
+              missingQuantity: missingQuantity,
+              unit: ingredient.unitType
+    
+            })
+          }
+        }
+        return insufficientIngredient
+    }
+      //!SECTION
 
 }

@@ -14,7 +14,7 @@ import { RecipeCostService } from './recipeCostService';
 @Module({
   imports: [TypeOrmModule.forFeature([Recipe,RecipeIngredient,Ingredient,Stock]),RecipeIngredientModule, IngredientModule],
   controllers: [RecipeController],
-  providers: [RecipeService, RecipeRepository, RecipeCostService],
-  exports: [RecipeService,RecipeCostService],
+  providers: [RecipeService, RecipeRepository, RecipeCostService, ],
+  exports: [RecipeService,RecipeCostService,],
 })
 export class RecipeModule {}

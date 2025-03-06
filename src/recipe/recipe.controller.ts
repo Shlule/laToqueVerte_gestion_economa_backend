@@ -34,10 +34,10 @@ export class RecipeController {
     }
   }
 
-  @Get(':id/insufficientIngredients')
-  async getInsufficientIngredient(@Param('id') id:string):Promise<InsufficientIngredient[]>{
-    return await this.recipeService.getInsufficientIngredient(id);
-  }
+  // @Get(':id/insufficientIngredients')
+  // async getInsufficientIngredient(@Param('id') id:string):Promise<InsufficientIngredient[]>{
+  //   return await this.recipeService.getInsufficientIngredient(id);
+  // }
 
   @Post()
   @UseInterceptors(TransactionInterceptor)
