@@ -1,8 +1,9 @@
 import { Controller, Get, Post, Body, Put, Param, Delete, NotFoundException, Query, UseInterceptors } from '@nestjs/common';
 import { RecipeService } from './recipe.service';
 import { Recipe } from './recipe.entity'
-import { CreateRecipeDto, InsufficientIngredient } from './recipe.dto';
-import { TransactionInterceptor } from 'src/common/transaction.interceptor';
+import { CreateRecipeDto} from './recipe.dto';
+import { TransactionInterceptor } from '../common/transaction.interceptor';
+import { InsufficientIngredient } from '../recipe-ingredient/recipe-ingredient.dto';
 
 @Controller('recipes')
 export class RecipeController {

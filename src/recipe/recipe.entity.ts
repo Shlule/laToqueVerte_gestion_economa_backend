@@ -1,7 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
 import {RecipeIngredient} from '../recipe-ingredient/recipeIngredient.entity'
-import { InsufficientIngredient } from "./recipe.dto";
-
+import { InsufficientIngredient } from "../recipe-ingredient/recipe-ingredient.dto";
 @Entity()
 export class Recipe{
     @PrimaryGeneratedColumn('uuid')

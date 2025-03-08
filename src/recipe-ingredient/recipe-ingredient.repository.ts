@@ -4,7 +4,8 @@ import {REQUEST} from "@nestjs/core";
 import { BaseRepository } from "src/common/base-repository";
 import { DataSource } from "typeorm";
 import { RecipeIngredient } from "./recipeIngredient.entity";
-import { REPLCommand } from "repl";
+
+// create a personnal repositoey for Transaction on decorator in the controller 
 
 @Injectable({scope: Scope.REQUEST})
 export class RecipeIngredientRepository extends BaseRepository{
@@ -23,6 +24,14 @@ export class RecipeIngredientRepository extends BaseRepository{
         .createQueryBuilder('recipeIngredient')
         .leftJoinAndSelect('recipeIngredient.ingredient', 'ingredient')
         .where('recipeIngredient.recipeId = :recipeId', { recipeId })
+        .getMany();
+    }
+
+    async getAllByIngredient(ingredientId: string):Promise<RecipeIngredient[]>{
+        return await this.getRepository(RecipeIngredient)
+        .createQueryBuilder('recipeIngredient')
+        .leftJoinAndSelect('recipeIngredient.ingredient', 'ingredient')
+        .where('recipeIngredient.ingredientId = :ingredientId',{ingredientId})
         .getMany();
     }
 

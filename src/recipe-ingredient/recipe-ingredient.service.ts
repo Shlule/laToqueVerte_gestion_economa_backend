@@ -84,7 +84,11 @@ export class RecipeIngredientService {
         
     }
 
-    
+    async getAllByIngredient(ingredientId: string):Promise<RecipeIngredient[]>{
+        return this.myRecipeIngredientRepository.getAllByIngredient(ingredientId)
+    }
+
+
     async update(recipeIngredientId: string, recipeIngredientData: Partial<RecipeIngredient>): Promise<RecipeIngredient>{
 
         await this.recipeIngredientRepository.update(recipeIngredientId, recipeIngredientData);
@@ -98,17 +102,15 @@ export class RecipeIngredientService {
 
         updatedRecipeIngredient.cost = await this.calculateCost(updatedRecipeIngredient)
 
-
         updatedRecipeIngredient = await this.recipeIngredientRepository.save(updatedRecipeIngredient);
 
         if (updatedRecipeIngredient.recipe) {
-            const newCost = await this.recipeCostService.calculateRecipeCost(updatedRecipeIngredient.recipe.id);
-            await this.recipeRepository.update(updatedRecipeIngredient.recipe.id, { cost: newCost });
+            const newRecipeCost = await this.recipeCostService.calculateRecipeCost(updatedRecipeIngredient.recipe.id);
+            const newInsufficientIngredients = await this.getInsufficientIngredient(updatedRecipeIngredient.recipe.id)
+            await this.recipeRepository.update(updatedRecipeIngredient.recipe.id, { cost: newRecipeCost, insufficientIngredient: newInsufficientIngredients });
         }   
 
-        const test = await this.getInsufficientIngredient(updatedRecipeIngredient.recipe.id)
-        console.log('bonjour je suis dsan le reicpeIngredient service ')
-        console.log(test)
+        
 
         return this.recipeIngredientRepository.findOne({ where: { id: recipeIngredientId } });
     }

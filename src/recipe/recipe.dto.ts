@@ -24,19 +24,3 @@ export class CreateRecipeDto {
   recipeIngredients: RecipeIngredient[];
 }
 
-export class InsufficientIngredient{
-
-  @IsString()
-  @IsNotEmpty()
-  name: string;
-
-  @IsUUID()
-  ingredientId: string;
-
-  @IsDecimal()
-  missingQuantity: number;
-
-  @IsString()
-  unit: 'kg'|'g'|'unit';
-
-}
