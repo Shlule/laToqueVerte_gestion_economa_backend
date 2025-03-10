@@ -4,6 +4,7 @@ import {REQUEST} from "@nestjs/core";
 import { BaseRepository } from "src/common/base-repository";
 import { DataSource } from "typeorm";
 import { RecipeIngredient } from "./recipeIngredient.entity";
+import { RecipeIngredientDto } from "./recipe-ingredient.dto";
 
 // create a personnal repositoey for Transaction on decorator in the controller 
 
@@ -14,7 +15,7 @@ export class RecipeIngredientRepository extends BaseRepository{
     }
 
     // create multiple items
-    async createRecipeIngredient(recipeIngredient: Partial<RecipeIngredient>){
+    async createRecipeIngredient(recipeIngredient: RecipeIngredientDto){
         const newRecipeIngredient = await this.getRepository(RecipeIngredient).create(recipeIngredient);
         return await this.getRepository(RecipeIngredient).save(newRecipeIngredient);
     }

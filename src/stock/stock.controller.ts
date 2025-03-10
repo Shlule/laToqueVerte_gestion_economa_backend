@@ -1,18 +1,19 @@
 import { Controller, Get, Post, Body, Put, Param, Delete, NotFoundException, Query } from '@nestjs/common';
 import { Stock } from './stock.entity';
 import { StockService } from './stock.service';
+import { StockDto } from './stocks.dto';
 
 @Controller('stocks')
 export class StockController {
   constructor(private readonly stockService: StockService) {}
 
   @Get()
-  async findAll(): Promise<Stock[]> {
+  async findAll(): Promise<StockDto[]> {
     return this.stockService.findAll();
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<Stock> {
+  async findOne(@Param('id') id: string): Promise<StockDto> {
     const user = await this.stockService.findOne(id);
     if (!user) {
       throw new NotFoundException('Stock does not exist!');
@@ -22,18 +23,18 @@ export class StockController {
   }
 
   @Get('/byIngredient/:ingredientId')
-  async getStockByIngredient(@Param('ingredientId') ingredientId: string):Promise<Stock[]>{
+  async getStockByIngredient(@Param('ingredientId') ingredientId: string):Promise<StockDto[]>{
     const stocks = await this.stockService.getStockByIngredient(ingredientId);
     return stocks
   }
 
   @Post()
-  async create(@Body() ingredient: Stock): Promise<Stock> {
+  async create(@Body() ingredient: Stock): Promise<StockDto> {
     return this.stockService.create(ingredient);
   }
 
   @Put(':id')
-  async update (@Param('id') id: string, @Body() ingredient: Stock): Promise<any> {
+  async update (@Param('id') id: string, @Body() ingredient: StockDto): Promise<any> {
     return this.stockService.update(id, ingredient);
   }
 

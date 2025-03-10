@@ -4,13 +4,11 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
-import { AuthModule } from './auth/auth.module';
 import { RecipeModule } from './recipe/recipe.module';
 import { RecipeIngredientModule } from './recipe-ingredient/recipe-ingredient.module';
 import { StockModule } from './stock/stock.module';
-import { IngredientService } from './ingredient/ingredient.service';
-import { IngredientController } from './ingredient/ingredient.controller';
 import { IngredientModule } from './ingredient/ingredient.module';
+import { EventEmitterModule} from '@nestjs/event-emitter'
 
 @Module({
   imports: [
@@ -18,6 +16,9 @@ import { IngredientModule } from './ingredient/ingredient.module';
     ConfigModule.forRoot({
       isGlobal: true, // Cela permet à ConfigModule d'être accessible dans tous les modules
     }),
+
+    // event driven system
+    EventEmitterModule.forRoot(),
 
     // Configuration de TypeORM avec PostgreSQL
     TypeOrmModule.forRoot({

@@ -1,18 +1,19 @@
 import { Controller, Get, Post, Body, Put, Param, Delete, NotFoundException, Query } from '@nestjs/common';
 import { Ingredient } from './ingredient.entity';
 import { IngredientService } from './ingredient.service';
+import { IngredientDto } from './Ingredient.dto';
 
 @Controller('Ingredients')
 export class IngredientController {
   constructor(private readonly ingredientService: IngredientService) {}
 
   @Get()
-  async findAll(): Promise<Ingredient[]> {
+  async findAll(): Promise<IngredientDto[]> {
     return this.ingredientService.findAll();
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<Ingredient> {
+  async findOne(@Param('id') id: string): Promise<IngredientDto> {
     const user = await this.ingredientService.findOne(id);
     if (!user) {
       throw new NotFoundException('Ingredient does not exist!');
@@ -23,7 +24,7 @@ export class IngredientController {
 
 
   @Get()
-  async findOneByName(@Query('name') name: string): Promise<Ingredient> {
+  async findOneByName(@Query('name') name: string): Promise<IngredientDto> {
     const user = await this.ingredientService.findOneByName(name);
     if (!user) {
       throw new NotFoundException('Ingredient does not exist!');
@@ -32,12 +33,12 @@ export class IngredientController {
     }
   }
   @Post()
-  async create(@Body() ingredient: Ingredient): Promise<Ingredient> {
+  async create(@Body() ingredient: IngredientDto): Promise<IngredientDto> {
     return this.ingredientService.create(ingredient);
   }
 
   @Put(':id')
-  async update (@Param('id') id: string, @Body() ingredient: Ingredient): Promise<any> {
+  async update (@Param('id') id: string, @Body() ingredient: IngredientDto): Promise<any> {
     return this.ingredientService.update(id, ingredient);
   }
 

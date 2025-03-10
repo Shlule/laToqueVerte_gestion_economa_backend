@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Recipe } from './recipe.entity';
 import { RecipeIngredient } from '../recipe-ingredient/recipeIngredient.entity';
-import { CreateRecipeDto } from './recipe.dto';
+import { CreateRecipeDto, RecipeDto } from './recipe.dto';
 import { convertUnit } from 'src/utils/convertUnit';
 import { RecipeIngredientService } from 'src/recipe-ingredient/recipe-ingredient.service';
 import { IngredientService } from 'src/ingredient/ingredient.service';
@@ -26,28 +26,28 @@ export class RecipeService {
 
   ) {}
 
-  async findAll(): Promise<Recipe[]> {
+  async findAll(): Promise<RecipeDto[]> {
     return this.myRecipeRepository.getAllRecipes();
   }
 
-  async findOne(recipeId: string): Promise<Recipe> {
+  async findOne(recipeId: string): Promise<RecipeDto> {
     return this.myRecipeRepository.getRecipe(recipeId);
   }
 
   
-  async getRecipeByName(name: string): Promise<Recipe[]> {
+  async getRecipeByName(name: string): Promise<RecipeDto[]> {
     return this.myRecipeRepository.getRecipesByName(name)
   }
 
-  async create(recipe: CreateRecipeDto): Promise<Recipe>{
+  async create(recipe: CreateRecipeDto): Promise<RecipeDto>{
     const {recipeIngredients} = recipe
     const savedRecipe = await this.myRecipeRepository.createRecipe(recipe)
     if(recipeIngredients){
       for(const ingredient of recipeIngredients){
-        const ingredientData = await this.ingredientService.findOne(ingredient.ingredientId);
+        const ingredientData = await this.ingredientService.findOne(ingredient.ingredient.id);
         if(!ingredientData){
           throw new BadRequestException(
-            `Invalid ingredient: Ingredient ID ${ingredient.ingredientId || 'unknown'} is not valid`,
+            `Invalid ingredient: Ingredient ID ${ingredient.ingredient.id || 'unknown'} is not valid`,
           )
         }
         await this.recipeIngredientService.create({
@@ -69,7 +69,7 @@ export class RecipeService {
 
   
 
-  async update(recipeId: string, updatedData: Partial<Recipe>): Promise<Recipe> {
+  async update(recipeId: string, updatedData: Partial<RecipeDto>): Promise<RecipeDto> {
   
     const existingRecipe = await this.recipeRepository.findOne({ 
         where: { id: recipeId }, 

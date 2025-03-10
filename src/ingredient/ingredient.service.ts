@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Ingredient } from './ingredient.entity';
+import { IngredientDto } from './Ingredient.dto';
 import { Repository } from 'typeorm';
+import { Ingredient } from './ingredient.entity';
 
 @Injectable()
 export class IngredientService {
@@ -10,24 +11,24 @@ export class IngredientService {
         private ingredientRepository: Repository<Ingredient>,
     ) {}
 
-    async findAll(): Promise<Ingredient[]> {
+    async findAll(): Promise<IngredientDto[]> {
         return this.ingredientRepository.find();
       }
     
-      async findOne(ingredientId: string): Promise<Ingredient> {
+      async findOne(ingredientId: string): Promise<IngredientDto> {
         return this.ingredientRepository.findOne({ where: { id: ingredientId } });
       }
     
-      async findOneByName(name: string): Promise<Ingredient> {
+      async findOneByName(name: string): Promise<IngredientDto> {
         return this.ingredientRepository.findOne({ where: {name}});
       }
     
-      async create(ingredient: Partial<Ingredient>): Promise<Ingredient> {
-        const newIngredient = this.ingredientRepository.create(ingredient);
-        return this.ingredientRepository.save(newIngredient);
+      async create(ingredient: Partial<IngredientDto>): Promise<IngredientDto> {
+        const newIngredientDto = this.ingredientRepository.create(ingredient);
+        return this.ingredientRepository.save(newIngredientDto);
       }
     
-      async update(ingredientId: string, ingredientData: Partial<Ingredient>): Promise<Ingredient> {
+      async update(ingredientId: string, ingredientData: Partial<IngredientDto>): Promise<IngredientDto> {
         await this.ingredientRepository.update(ingredientId, ingredientData);
         return this.ingredientRepository.findOne({ where: { id: ingredientId } });
       }

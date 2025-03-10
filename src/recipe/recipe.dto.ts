@@ -1,16 +1,67 @@
-import { IsString, IsArray, IsNotEmpty, ValidateNested, IsUUID, IsDecimal } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsString, IsArray, IsNotEmpty, ValidateNested, IsUUID, IsDecimal, IsOptional } from 'class-validator';
+import { Expose, Type } from 'class-transformer';
+import { RecipeIngredientDto } from 'src/recipe-ingredient/recipe-ingredient.dto';
 
-class RecipeIngredient {
+// class RecipeIngredient {
+//   @IsUUID()
+//   ingredientId: string;
+
+//   @IsDecimal()
+//   quantityNeeded: number;
+
+//   @IsString()
+//   @IsNotEmpty()
+//   unit: 'kg' | 'g' | 'unit';
+// }
+
+export class InsufficientIngredient{
+
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
   @IsUUID()
   ingredientId: string;
 
   @IsDecimal()
-  quantityNeeded: number;
+  missingQuantity: number;
 
   @IsString()
-  @IsNotEmpty()
-  unit: 'kg' | 'g' | 'unit';
+  unit: 'kg'|'g'|'unit';
+
+}
+
+export class RecipeDto{
+
+  @Expose()
+  @IsUUID()
+  id: string
+
+  @Expose()
+  @IsString()
+  name: string
+  
+  @Expose()
+  @IsDecimal()
+  numberOfPieces: number
+
+  @Expose()
+  @IsOptional()
+  @IsDecimal()
+  cost?: number
+
+  @Expose()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => RecipeIngredientDto)
+  recipeIngredients?: RecipeIngredientDto[];
+
+  @Expose()
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => InsufficientIngredient) 
+  insufficientIngredient?: InsufficientIngredient[];
 }
 
 export class CreateRecipeDto {
@@ -20,7 +71,7 @@ export class CreateRecipeDto {
 
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => RecipeIngredient)
-  recipeIngredients: RecipeIngredient[];
+  @Type(() => RecipeIngredientDto)
+  recipeIngredients: RecipeIngredientDto[];
 }
 

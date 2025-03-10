@@ -1,20 +1,21 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put} from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, SerializeOptions} from '@nestjs/common';
 import { RecipeIngredient } from './recipeIngredient.entity';
 import { RecipeIngredientService } from './recipe-ingredient.service';
 import MyNotFoundError from 'src/common/execption/notFound.execption';
-import { AddToRecipeDto } from './recipe-ingredient.dto';
+import { AddToRecipeDto, RecipeIngredientDto } from './recipe-ingredient.dto';
 
 @Controller('recipe-ingredients')
 export class RecipeIngredientController {
     constructor(private readonly recipeIngredientService: RecipeIngredientService){}
 
     @Get()
-    async findAll(): Promise<RecipeIngredient[]>{
+    // @SerializeOptions({type: RecipeIngredientDto})
+    async findAll(): Promise<RecipeIngredientDto[]>{
         return this.recipeIngredientService.findAll();
     }
 
     @Get(':id')
-    async findOne(@Param('id') id: string): Promise<RecipeIngredient>{
+    async findOne(@Param('id') id: string): Promise<RecipeIngredientDto>{
         const recipeIngredient = await this.recipeIngredientService.findOne(id);
         if(!recipeIngredient){
             throw new NotFoundException('RecipeIngredient does not exist!');
@@ -24,7 +25,7 @@ export class RecipeIngredientController {
     }
 
     @Get('/byRecipe/:recipeId')
-    async getAllByRecipe(@Param('recipeId') recipeId:string):Promise<RecipeIngredient[]>{
+    async getAllByRecipe(@Param('recipeId') recipeId:string):Promise<RecipeIngredientDto[]>{
         const recipeIngredients = await this.recipeIngredientService.getAllByRecipe(recipeId);
         if(!recipeIngredients){
             throw new MyNotFoundError('recipe',recipeId);
@@ -34,12 +35,12 @@ export class RecipeIngredientController {
     }
 
     @Post()
-async addToRecipe(@Body() recipeIngredient: AddToRecipeDto): Promise<RecipeIngredient>{
+async addToRecipe(@Body() recipeIngredient: RecipeIngredientDto): Promise<RecipeIngredientDto>{
         return this.recipeIngredientService.addToRecipe(recipeIngredient);
     }
 
     @Put(':id')
-    async update(@Param('id') id: string, @Body() recipeIngredient: RecipeIngredient): Promise<any>{
+    async update(@Param('id') id: string, @Body() recipeIngredient: RecipeIngredientDto): Promise<any>{
         return this.recipeIngredientService.update(id, recipeIngredient);
     }
 

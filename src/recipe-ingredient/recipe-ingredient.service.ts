@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RecipeIngredient } from './recipeIngredient.entity';
-import { InsufficientIngredient } from './recipe-ingredient.dto';
+import { RecipeIngredientDto } from './recipe-ingredient.dto';
 import { Repository } from 'typeorm';
 import { convertUnit } from 'src/utils/convertUnit';
 import { RecipeIngredientRepository } from './recipe-ingredient.repository';
@@ -9,6 +9,8 @@ import { Recipe } from 'src/recipe/recipe.entity';
 import { RecipeCostService } from 'src/recipe/recipeCostService';
 import {AddToRecipeDto} from './recipe-ingredient.dto'
 import { Ingredient } from 'src/ingredient/ingredient.entity';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { InsufficientIngredient } from 'src/recipe/recipe.dto';
 
 @Injectable()
 export class RecipeIngredientService {
@@ -27,53 +29,60 @@ export class RecipeIngredientService {
 
     ){}
 
-    async findAll(): Promise<RecipeIngredient[]>{
+    async findAll(): Promise<RecipeIngredientDto[]>{
         return this.recipeIngredientRepository.find({relations:['ingredient','recipe']})
     }
 
-    async findOne(recipeIngredientId: string): Promise<RecipeIngredient>{
+    async findOne(recipeIngredientId: string): Promise<RecipeIngredientDto>{
         return this.recipeIngredientRepository.findOne({where:{id: recipeIngredientId},relations:['ingredient']});
     }
 
     //ANCHOR - this function is use for only the creation a the entire recipe 
-    async create(recipeIngredient: Partial<RecipeIngredient>): Promise<RecipeIngredient>{
+    async create(recipeIngredient: RecipeIngredientDto): Promise<RecipeIngredientDto>{
         const cost = await this.calculateCost(recipeIngredient);
         recipeIngredient.cost = cost
         return await this.myRecipeIngredientRepository.createRecipeIngredient(recipeIngredient)
     }
 
-    //ANCHOR - this is for trigger the computation of the recipe cost  
-    async addToRecipe(addToRecipe: AddToRecipeDto): Promise<RecipeIngredient>{
-    const [ingredient, recipe] = await Promise.all([
-        this.ingredientRepository.findOne({ where: { id: addToRecipe.ingredientId } }),
-        this.recipeRepository.findOne({ where: { id: addToRecipe.recipeId } })
-    ]);
+    // //ANCHOR - this is for trigger the computation of the recipe cost  
+    // async addToRecipe(addToRecipe: AddToRecipeDto): Promise<RecipeIngredient>{
+    // const [ingredient, recipe] = await Promise.all([
+    //     this.ingredientRepository.findOne({ where: { id: addToRecipe.ingredientId } }),
+    //     this.recipeRepository.findOne({ where: { id: addToRecipe.recipeId } })
+    // ]);
 
-    if (!ingredient) {
-        throw new NotFoundException(` ${addToRecipe.ingredientId} ingredient doesn't exist`);
-    }
-    if (!recipe) {
-        throw new NotFoundException(` ${addToRecipe.recipeId} recipe doesn't exist`);
-    }
+    // if (!ingredient) {
+    //     throw new NotFoundException(` ${addToRecipe.ingredientId} ingredient doesn't exist`);
+    // }
+    // if (!recipe) {
+    //     throw new NotFoundException(` ${addToRecipe.recipeId} recipe doesn't exist`);
+    // }
 
-    const createdRecipeIngredient = await this.create({
-        ...addToRecipe,
-        ingredient,
-        recipe
-    });
+    // const createdRecipeIngredient = await this.create({
+    //     ...addToRecipe,
+    //     ingredient,
+    //     recipe
+    // });
 
-    if (!createdRecipeIngredient) {
-        throw new Error('Error during the creation of th recipe Ingredient');
-    }
+    // if (!createdRecipeIngredient) {
+    //     throw new Error('Error during the creation of th recipe Ingredient');
+    // }
 
 
-    const newRecipeCost = await this.recipeCostService.calculateRecipeCost(recipe.id);
+    // const newRecipeCost = await this.recipeCostService.calculateRecipeCost(recipe.id);
 
-    await this.recipeRepository.update(recipe.id, { cost: newRecipeCost });
+    // await this.recipeRepository.update(recipe.id, { cost: newRecipeCost });
 
-    return createdRecipeIngredient;
+    // return createdRecipeIngredient;
  
-}
+    // }
+
+    async addToRecipe(addToRecipe: RecipeIngredientDto){
+        // const ingredientField  = await 
+        const cost  = await this.calculateCost(addToRecipe)
+        return  await this.myRecipeIngredientRepository.createRecipeIngredient(addToRecipe)
+    }
+    
 
     async getAllByRecipe(recipeId: string):Promise<RecipeIngredient[]>{
         return this.myRecipeIngredientRepository.getAllByRecipe(recipeId);
@@ -89,7 +98,7 @@ export class RecipeIngredientService {
     }
 
 
-    async update(recipeIngredientId: string, recipeIngredientData: Partial<RecipeIngredient>): Promise<RecipeIngredient>{
+    async update(recipeIngredientId: string, recipeIngredientData: Partial<RecipeIngredientDto>): Promise<RecipeIngredientDto>{
 
         await this.recipeIngredientRepository.update(recipeIngredientId, recipeIngredientData);
 
@@ -136,7 +145,7 @@ export class RecipeIngredientService {
     }
    
 
-    async calculateCost(recipeIngredient: Partial<RecipeIngredient>){
+    async calculateCost(recipeIngredient: RecipeIngredientDto){
         
         const {unitType, pricePerUnit, name} = recipeIngredient.ingredient
         const {quantityNeeded, unit} = recipeIngredient
