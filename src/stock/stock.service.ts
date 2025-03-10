@@ -28,7 +28,7 @@ export class StockService {
         return await ingredientList.getMany()
     }
 
-    async create(stock: Partial<Stock>): Promise<StockDto>{
+    async create(stock: Partial<StockDto>): Promise<StockDto>{
         const newStock = this.stockRepository.create(stock);
         return this.stockRepository.save(newStock)
     }

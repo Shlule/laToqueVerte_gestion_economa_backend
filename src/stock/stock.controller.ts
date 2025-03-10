@@ -29,7 +29,7 @@ export class StockController {
   }
 
   @Post()
-  async create(@Body() ingredient: Stock): Promise<StockDto> {
+  async create(@Body() ingredient: StockDto): Promise<StockDto> {
     return this.stockService.create(ingredient);
   }
 
