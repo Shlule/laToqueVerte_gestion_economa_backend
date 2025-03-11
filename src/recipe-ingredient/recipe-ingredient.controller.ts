@@ -35,7 +35,7 @@ export class RecipeIngredientController {
     }
 
     @Post()
-async addToRecipe(@Body() recipeIngredient: RecipeIngredientDto): Promise<RecipeIngredientDto>{
+    async addToRecipe(@Body() recipeIngredient: AddToRecipeDto): Promise<RecipeIngredientDto>{
         return this.recipeIngredientService.addToRecipe(recipeIngredient);
     }
 

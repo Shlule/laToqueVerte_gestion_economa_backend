@@ -14,7 +14,6 @@ export class RecipeIngredientRepository extends BaseRepository{
         super(dataSource, req)
     }
 
-    // create multiple items
     async createRecipeIngredient(recipeIngredient: RecipeIngredientDto){
         const newRecipeIngredient = await this.getRepository(RecipeIngredient).create(recipeIngredient);
         return await this.getRepository(RecipeIngredient).save(newRecipeIngredient);
@@ -31,7 +30,6 @@ export class RecipeIngredientRepository extends BaseRepository{
     async getAllByIngredient(ingredientId: string):Promise<RecipeIngredient[]>{
         return await this.getRepository(RecipeIngredient)
         .createQueryBuilder('recipeIngredient')
-        .leftJoinAndSelect('recipeIngredient.ingredient', 'ingredient')
         .where('recipeIngredient.ingredientId = :ingredientId',{ingredientId})
         .getMany();
     }

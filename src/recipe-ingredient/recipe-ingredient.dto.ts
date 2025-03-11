@@ -33,18 +33,29 @@ export class RecipeIngredientDto {
 }
 
 export class AddToRecipeDto {
-
+  @Expose()
   @IsUUID()
+  id: string;
+
+  @Expose()
+  @IsString()
   recipeId: string;
 
-  @IsDecimal()
-  cost: number;
-    
+  @Expose()
+  @ValidateNested()
+  @Type(() => IngredientDto) 
+  ingredient: IngredientDto;
+
+  @Expose()
   @IsDecimal()
   quantityNeeded: number;
 
-  @IsString()
-  @IsNotEmpty()
+  @Expose()
+  @IsDecimal()
+  cost: number;
+
+  @Expose()
+  @IsEnum(['kg', 'g', 'unit'])
   unit: 'kg' | 'g' | 'unit';
 }
 

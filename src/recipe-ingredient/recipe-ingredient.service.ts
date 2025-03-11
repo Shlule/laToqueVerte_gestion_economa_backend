@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConsoleLogger, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RecipeIngredient } from './recipeIngredient.entity';
 import { RecipeIngredientDto } from './recipe-ingredient.dto';
@@ -9,8 +9,10 @@ import { Recipe } from 'src/recipe/recipe.entity';
 import { RecipeCostService } from 'src/recipe/recipeCostService';
 import {AddToRecipeDto} from './recipe-ingredient.dto'
 import { Ingredient } from 'src/ingredient/ingredient.entity';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { InsufficientIngredient } from 'src/recipe/recipe.dto';
+import { IngredientDto } from 'src/ingredient/Ingredient.dto';
+import { of } from 'rxjs';
 
 @Injectable()
 export class RecipeIngredientService {
@@ -22,10 +24,7 @@ export class RecipeIngredientService {
         @InjectRepository(Recipe)
         private readonly recipeRepository: Repository<Recipe>,
         private readonly recipeCostService: RecipeCostService,
-        // private readonly recipeInsufficientIngredientService: RecipeInsufficientIngredientService,
-
-        @InjectRepository(Ingredient)
-        private readonly ingredientRepository: Repository<Ingredient>,
+        
 
     ){}
 
@@ -44,45 +43,31 @@ export class RecipeIngredientService {
         return await this.myRecipeIngredientRepository.createRecipeIngredient(recipeIngredient)
     }
 
-    // //ANCHOR - this is for trigger the computation of the recipe cost  
-    // async addToRecipe(addToRecipe: AddToRecipeDto): Promise<RecipeIngredient>{
-    // const [ingredient, recipe] = await Promise.all([
-    //     this.ingredientRepository.findOne({ where: { id: addToRecipe.ingredientId } }),
-    //     this.recipeRepository.findOne({ where: { id: addToRecipe.recipeId } })
-    // ]);
+    //ANCHOR - this is for trigger the computation of the recipe cost  
+    async addToRecipe(addToRecipe: AddToRecipeDto): Promise<RecipeIngredientDto>{
+    const recipe = await this.recipeRepository.findOne({where:{id: addToRecipe.recipeId}})
 
-    // if (!ingredient) {
-    //     throw new NotFoundException(` ${addToRecipe.ingredientId} ingredient doesn't exist`);
-    // }
-    // if (!recipe) {
-    //     throw new NotFoundException(` ${addToRecipe.recipeId} recipe doesn't exist`);
-    // }
-
-    // const createdRecipeIngredient = await this.create({
-    //     ...addToRecipe,
-    //     ingredient,
-    //     recipe
-    // });
-
-    // if (!createdRecipeIngredient) {
-    //     throw new Error('Error during the creation of th recipe Ingredient');
-    // }
-
-
-    // const newRecipeCost = await this.recipeCostService.calculateRecipeCost(recipe.id);
-
-    // await this.recipeRepository.update(recipe.id, { cost: newRecipeCost });
-
-    // return createdRecipeIngredient;
- 
-    // }
-
-    async addToRecipe(addToRecipe: RecipeIngredientDto){
-        // const ingredientField  = await 
-        const cost  = await this.calculateCost(addToRecipe)
-        return  await this.myRecipeIngredientRepository.createRecipeIngredient(addToRecipe)
+    if (!recipe) {
+        throw new NotFoundException(` ${addToRecipe.recipeId} recipe doesn't exist`);
     }
-    
+
+    const createdRecipeIngredient = await this.create({
+        ...addToRecipe,
+        recipe
+    });
+
+    if (!createdRecipeIngredient) {
+        throw new Error('Error during the creation of th recipe Ingredient');
+    }
+
+
+    const newRecipeCost = await this.recipeCostService.calculateRecipeCost(recipe.id);
+
+    await this.recipeRepository.update(recipe.id, { cost: newRecipeCost });
+
+    return createdRecipeIngredient;
+ 
+    }
 
     async getAllByRecipe(recipeId: string):Promise<RecipeIngredient[]>{
         return this.myRecipeIngredientRepository.getAllByRecipe(recipeId);
@@ -100,7 +85,6 @@ export class RecipeIngredientService {
 
     async update(recipeIngredientId: string, recipeIngredientData: Partial<RecipeIngredientDto>): Promise<RecipeIngredientDto>{
 
-        await this.recipeIngredientRepository.update(recipeIngredientId, recipeIngredientData);
 
         await this.recipeIngredientRepository.update(recipeIngredientId, recipeIngredientData);
 
@@ -145,7 +129,7 @@ export class RecipeIngredientService {
     }
    
 
-    async calculateCost(recipeIngredient: RecipeIngredientDto){
+    async calculateCost(recipeIngredient: RecipeIngredientDto | AddToRecipeDto){
         
         const {unitType, pricePerUnit, name} = recipeIngredient.ingredient
         const {quantityNeeded, unit} = recipeIngredient
@@ -195,6 +179,14 @@ export class RecipeIngredientService {
         }
         return insufficientIngredient
     }
-      //!SECTION
+      //!SECTION   
+
+    @OnEvent('ingredient.updated')
+    async HandleIngredientUpdated(ingredientUpdated: IngredientDto) {
+       const impactedRecipeIngredients = await this.getAllByIngredient(ingredientUpdated.id)
+       for (const recipeIngredient of impactedRecipeIngredients) {
+        this.update(recipeIngredient.id,recipeIngredient)
+       }
+    }
 
 }
