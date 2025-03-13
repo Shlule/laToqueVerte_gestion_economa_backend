@@ -12,7 +12,6 @@ import { Ingredient } from 'src/ingredient/ingredient.entity';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { InsufficientIngredient } from 'src/recipe/recipe.dto';
 import { IngredientDto } from 'src/ingredient/Ingredient.dto';
-import { of } from 'rxjs';
 
 @Injectable()
 export class RecipeIngredientService {
