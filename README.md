@@ -69,3 +69,8 @@ Db_PASSWORD=password
 DB_NAME=mydb
 DB_HOST = localhost
 ```
+
+## migrations 
+
+
+

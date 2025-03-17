@@ -1,4 +1,4 @@
-import { IsString, IsArray, IsNotEmpty, ValidateNested, IsUUID, IsDecimal, IsOptional } from 'class-validator';
+import { IsString, IsArray, IsNotEmpty, ValidateNested, IsUUID, IsDecimal, IsOptional, IsNumber } from 'class-validator';
 import { Expose, Type } from 'class-transformer';
 import { RecipeIngredientDto } from 'src/recipe-ingredient/recipe-ingredient.dto';
 
@@ -68,6 +68,9 @@ export class CreateRecipeDto {
   @IsString()
   @IsNotEmpty()
   name: string;
+
+  @IsNumber()
+  numberOfPieces: number;
 
   @IsArray()
   @ValidateNested({ each: true })

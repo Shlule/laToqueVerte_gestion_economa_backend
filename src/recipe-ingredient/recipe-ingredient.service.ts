@@ -98,8 +98,7 @@ export class RecipeIngredientService {
 
         if (updatedRecipeIngredient.recipe) {
             const newRecipeCost = await this.recipeCostService.calculateRecipeCost(updatedRecipeIngredient.recipe.id);
-            const newInsufficientIngredients = await this.getInsufficientIngredient(updatedRecipeIngredient.recipe.id)
-            await this.recipeRepository.update(updatedRecipeIngredient.recipe.id, { cost: newRecipeCost, insufficientIngredient: newInsufficientIngredients });
+            await this.recipeRepository.update(updatedRecipeIngredient.recipe.id, { cost: newRecipeCost});
         }   
 
         
@@ -140,45 +139,6 @@ export class RecipeIngredientService {
         totalCost += convertedQuantity * pricePerUnit
         return parseFloat(totalCost.toFixed(2))   
     }
-
-    //SECTION - this fonction normaly be inside recipeModule but here for convenience
-    // and avoid circular import
-    async getInsufficientIngredient(recipeId: string): Promise<InsufficientIngredient[]>{
-    
-        const recipeIngredients = await this.getAllByRecipeWithStocks(recipeId)
-        const insufficientIngredient: InsufficientIngredient[]= []
-    
-        for(const recipeIngredient of recipeIngredients){
-          const {ingredient, quantityNeeded, unit} = recipeIngredient;
-          
-          let convertedQuantityNeeded = convertUnit(quantityNeeded,unit,ingredient.unitType);
-          if(!ingredient.stock || ingredient.stock.length === 0){
-            insufficientIngredient.push({
-              name: ingredient.name,
-              ingredientId: ingredient.id,
-              missingQuantity: quantityNeeded,
-              unit: unit,
-            });
-            continue;
-          }
-    
-          const totalAvailable = ingredient.stock.reduce(
-            (sum,stock) => sum + stock.quantity, 0
-          )
-          if(totalAvailable < convertedQuantityNeeded){
-            const missingQuantity = convertedQuantityNeeded - totalAvailable; 
-            insufficientIngredient.push({
-              name: ingredient.name,
-              ingredientId: ingredient.id,
-              missingQuantity: missingQuantity,
-              unit: ingredient.unitType
-    
-            })
-          }
-        }
-        return insufficientIngredient
-    }
-      //!SECTION   
 
     @OnEvent('ingredient.updated')
     async HandleIngredientUpdated(ingredientUpdated: IngredientDto) {

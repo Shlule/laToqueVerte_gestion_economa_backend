@@ -48,13 +48,22 @@ export class RecipeRepository extends BaseRepository{
         return await this.getRepository(Recipe).delete(id);
     }
 
-    async isPossible(recipeId: string){
-        const test = await this.getRepository(RecipeIngredient)
+    // SECTION - not used 
+    async getInsufficientIngredients(recipeId: string){
+        const insuffcientIngredients = await this.getRepository(RecipeIngredient)
         .createQueryBuilder('ri')
-        .leftJoinAndSelect('ri.recipe','recipe')
-        .where('recipe.id = :recipeId',{recipeId})
-        .getMany()
+        .leftJoinAndSelect('ri.ingredient', 'ingredient')
+        .leftJoin('ingredient.stock', 'stock')
+        .select([
+      'ingredient.id AS id',
+      'ingredient.name AS name',
+      'ri.quantityNeeded - COALESCE(stock.quantity, 0) AS missingQty',
+        ])
+        .where('ri.recipeId = :recipeId', { recipeId })
+        .andWhere('ri.quantityNeeded > COALESCE(stock.quantity, 0)')
+        .getRawMany();
 
-        return test
+        return insuffcientIngredients
     }
+    //!SECTION
 }

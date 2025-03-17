@@ -9,11 +9,6 @@ export class Recipe{
     @Column()
     name: string;
 
-    // use json more than boolean for more explicit information why
-    // recipe is not possible
-    @Column({type: 'jsonb', nullable: true})
-    insufficientIngredient: InsufficientIngredient[];
-
     @Column('int')
     numberOfPieces: number
 
