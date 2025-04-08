@@ -13,18 +13,6 @@ export class RecipeRepository extends BaseRepository{
         super(dataSource, req);
     }
 
-    async getAllRecipes(){
-        return await this.getRepository(Recipe).find()
-    }
-
-    async getRecipe(recipeId: string):Promise<Recipe>{
-
-        const recipe = await this.getRepository(Recipe).findOne({where: {id: recipeId}, relations:['recipeIngredients','subRecipe']});
-        if(!recipe){
-            throw new Error(`Recipe with the ID ${recipeId} not found`);
-        }
-        return recipe;
-    }
 
     async getRecipesByName(name: string): Promise<Recipe[]>{
         const recipeList = this.getRepository(Recipe)
@@ -40,30 +28,22 @@ export class RecipeRepository extends BaseRepository{
         return await this.getRepository(Recipe).save(newRecipe)
     }
 
-    async saveRecipe(recipe: Partial<Recipe>): Promise<Recipe>{
-        return await this.getRepository(Recipe).save(recipe)
-    }
-    
-    async deleteRecipe(id: string){
-        return await this.getRepository(Recipe).delete(id);
-    }
-
     // SECTION - not used 
-    async getInsufficientIngredients(recipeId: string){
-        const insuffcientIngredients = await this.getRepository(RecipeIngredient)
-        .createQueryBuilder('ri')
-        .leftJoinAndSelect('ri.ingredient', 'ingredient')
-        .leftJoin('ingredient.stock', 'stock')
-        .select([
-      'ingredient.id AS id',
-      'ingredient.name AS name',
-      'ri.quantityNeeded - COALESCE(stock.quantity, 0) AS missingQty',
-        ])
-        .where('ri.recipeId = :recipeId', { recipeId })
-        .andWhere('ri.quantityNeeded > COALESCE(stock.quantity, 0)')
-        .getRawMany();
+    // async getInsufficientIngredients(recipeId: string){
+    //     const insuffcientIngredients = await this.getRepository(RecipeIngredient)
+    //     .createQueryBuilder('ri')
+    //     .leftJoinAndSelect('ri.ingredient', 'ingredient')
+    //     .leftJoin('ingredient.stock', 'stock')
+    //     .select([
+    //   'ingredient.id AS id',
+    //   'ingredient.name AS name',
+    //   'ri.quantityNeeded - COALESCE(stock.quantity, 0) AS missingQty',
+    //     ])
+    //     .where('ri.recipeId = :recipeId', { recipeId })
+    //     .andWhere('ri.quantityNeeded > COALESCE(stock.quantity, 0)')
+    //     .getRawMany();
 
-        return insuffcientIngredients
-    }
+    //     return insuffcientIngredients
+    // }
     //!SECTION
 }

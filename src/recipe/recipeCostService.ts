@@ -12,13 +12,12 @@ export class RecipeCostService {
     //use custom repository for transactionInterceptor use
     @InjectRepository(Recipe)
     private recipeRepository: Repository<Recipe>,
-    private myRecipeRepository: RecipeRepository,
   ) {}
 
   
 
   async calculateRecipeCost(recipeId: string):Promise<number>{
-    const recipe = await this.myRecipeRepository.getRecipe(recipeId)
+    const recipe = await this.recipeRepository.findOne({where:{id: recipeId}})
 
     let recipeIngredientsCost = 0;
     let subRecipesCost = 0;

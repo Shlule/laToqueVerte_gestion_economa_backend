@@ -34,11 +34,11 @@ export class RecipeService {
   ) {}
 
   async findAll(): Promise<RecipeDto[]> {
-    return this.myRecipeRepository.getAllRecipes();
+    return this.recipeRepository.find();
   }
 
   async findOne(recipeId: string): Promise<RecipeDto> {
-    return this.myRecipeRepository.getRecipe(recipeId);
+    return this.recipeRepository.findOne({where: {id: recipeId}});
   }
 
   
@@ -76,9 +76,7 @@ export class RecipeService {
       console.log('je possede des subRecipes ')
       await Promise.all(
         subRecipes.map(async (sub) => { 
-          const childRecipe = await this.myRecipeRepository.getRecipe(sub.subRecipe.id);
-          console.log('bonjour')
-          console.log(childRecipe)
+          const childRecipe = await this.recipeRepository.findOne({where: {id: sub.parentRecipe.id}});
           if(!childRecipe){
             throw new BadRequestException(`Invalid sub-recipe: Recipe ID ${sub.subRecipe.id || 'unknown'} is not valid`);
           }
@@ -91,14 +89,13 @@ export class RecipeService {
       )
     }
     
-    console.log("j'ais fini de creer les subreicpe")
     // calculate recipe cost 
     const cost = await this.recipeCostService.calculateRecipeCost(savedRecipe.id);
     savedRecipe.cost = cost;
-    await this.myRecipeRepository.saveRecipe(savedRecipe);
+    await this.recipeRepository.save(savedRecipe);
 
     // return recipe Object
-    return await this.myRecipeRepository.getRecipe(savedRecipe.id)
+    return await this.recipeRepository.findOne({where: {id:savedRecipe.id}})
       
   }
 
@@ -121,7 +118,7 @@ export class RecipeService {
   }
 
   async delete(id: string): Promise<void> {
-    await this.myRecipeRepository.deleteRecipe(id);
+    await this.recipeRepository.delete(id);
   }
 
   async getInsufficientIngredients(recipeId: string): Promise<InsufficientIngredient[]>{
