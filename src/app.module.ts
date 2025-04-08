@@ -9,6 +9,8 @@ import { RecipeIngredientModule } from './recipe-ingredient/recipe-ingredient.mo
 import { StockModule } from './stock/stock.module';
 import { IngredientModule } from './ingredient/ingredient.module';
 import { EventEmitterModule} from '@nestjs/event-emitter'
+import { SubRecipeService } from './sub-recipe/sub-recipe.service';
+import { SubRecipeModule } from './sub-recipe/sub-recipe.module';
 
 @Module({
   imports: [
@@ -38,6 +40,7 @@ import { EventEmitterModule} from '@nestjs/event-emitter'
     RecipeModule,
     RecipeIngredientModule,
     StockModule,
+    SubRecipeModule,
 
   ],
   controllers: [AppController],

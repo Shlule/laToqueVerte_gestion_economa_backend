@@ -19,7 +19,7 @@ export class RecipeRepository extends BaseRepository{
 
     async getRecipe(recipeId: string):Promise<Recipe>{
 
-        const recipe = await this.getRepository(Recipe).findOne({where: {id: recipeId}, relations:['recipeIngredients']});
+        const recipe = await this.getRepository(Recipe).findOne({where: {id: recipeId}, relations:['recipeIngredients','subRecipe']});
         if(!recipe){
             throw new Error(`Recipe with the ID ${recipeId} not found`);
         }
@@ -35,7 +35,7 @@ export class RecipeRepository extends BaseRepository{
     }
 
     async createRecipe(recipe: CreateRecipeDto): Promise<Recipe>{
-        const {recipeIngredients, ...recipeData} = recipe
+        const {recipeIngredients, subRecipes, ...recipeData} = recipe
         const newRecipe = await this.getRepository(Recipe).create(recipeData)
         return await this.getRepository(Recipe).save(newRecipe)
     }

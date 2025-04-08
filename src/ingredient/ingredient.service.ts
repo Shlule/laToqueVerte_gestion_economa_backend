@@ -33,8 +33,6 @@ export class IngredientService {
       async update(ingredientId: string, ingredientData: Partial<IngredientDto>): Promise<IngredientDto> {
         await this.ingredientRepository.update(ingredientId, ingredientData);
         const ingredientUpdated = await this.ingredientRepository.findOne({where:{id: ingredientId}})
-        console.log('je suis dan ingredient service ')
-        console.log(ingredientUpdated)
         this.eventEmitter.emit('ingredient.updated',ingredientUpdated)
         return ingredientUpdated
 

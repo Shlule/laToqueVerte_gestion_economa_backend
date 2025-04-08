@@ -10,9 +10,10 @@ import { RecipeIngredientModule } from 'src/recipe-ingredient/recipe-ingredient.
 import { IngredientModule } from 'src/ingredient/ingredient.module';
 import { RecipeRepository } from './recipe.repository';
 import { RecipeCostService } from './recipeCostService';
+import { SubRecipeModule } from 'src/sub-recipe/sub-recipe.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Recipe,RecipeIngredient,Ingredient,Stock]),RecipeIngredientModule, IngredientModule],
+  imports: [TypeOrmModule.forFeature([Recipe,RecipeIngredient,Ingredient,Stock]),RecipeIngredientModule, IngredientModule, SubRecipeModule],
   controllers: [RecipeController],
   providers: [RecipeService, RecipeRepository, RecipeCostService, ],
   exports: [RecipeService,RecipeCostService,],

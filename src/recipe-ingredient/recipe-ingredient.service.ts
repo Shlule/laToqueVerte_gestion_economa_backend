@@ -1,4 +1,4 @@
-import { ConsoleLogger, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConsoleLogger, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RecipeIngredient } from './recipeIngredient.entity';
 import { RecipeIngredientDto } from './recipe-ingredient.dto';
@@ -35,36 +35,42 @@ export class RecipeIngredientService {
         return this.recipeIngredientRepository.findOne({where:{id: recipeIngredientId},relations:['ingredient']});
     }
 
-    //ANCHOR - this function is use for only the creation a the entire recipe 
+    //ANCHOR - this function is use for only the creation of an entire recipe 
     async create(recipeIngredient: RecipeIngredientDto): Promise<RecipeIngredientDto>{
         const cost = await this.calculateCost(recipeIngredient);
         recipeIngredient.cost = cost
         return await this.myRecipeIngredientRepository.createRecipeIngredient(recipeIngredient)
     }
 
-    //ANCHOR - this is for trigger the computation of the recipe cost  
-    async addToRecipe(addToRecipe: AddToRecipeDto): Promise<RecipeIngredientDto>{
-    const recipe = await this.recipeRepository.findOne({where:{id: addToRecipe.recipeId}})
-
-    if (!recipe) {
-        throw new NotFoundException(` ${addToRecipe.recipeId} recipe doesn't exist`);
-    }
-
-    const createdRecipeIngredient = await this.create({
-        ...addToRecipe,
-        recipe
-    });
-
-    if (!createdRecipeIngredient) {
-        throw new Error('Error during the creation of th recipe Ingredient');
-    }
-
-
-    const newRecipeCost = await this.recipeCostService.calculateRecipeCost(recipe.id);
-
-    await this.recipeRepository.update(recipe.id, { cost: newRecipeCost });
-
-    return createdRecipeIngredient;
+    //ANCHOR - this is use when adding recipeIngredient in a recipe  
+    async addToRecipe(addToRecipeList: AddToRecipeDto[]): Promise<RecipeIngredientDto[]>{
+        if (!addToRecipeList || addToRecipeList.length === 0) {
+            throw new BadRequestException('The recipe ingredients list is empty');
+          }
+        
+          const recipeId = addToRecipeList[0].recipeId;
+        
+          const recipe = await this.recipeRepository.findOne({
+            where: { id: recipeId },
+          });
+        
+          if (!recipe) {
+            throw new NotFoundException(`Recipe with ID ${recipeId} doesn't exist`);
+          }
+        
+          const createdRecipeIngredients = await Promise.all(
+            addToRecipeList.map(async (addToRecipe) => {
+              return await this.create({
+                ...addToRecipe,
+                recipe,
+              });
+            })
+          );
+        
+          const newRecipeCost = await this.recipeCostService.calculateRecipeCost(recipe.id);
+          await this.recipeRepository.update(recipe.id, { cost: newRecipeCost });
+        
+          return createdRecipeIngredients;
  
     }
 

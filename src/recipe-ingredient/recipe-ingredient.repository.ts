@@ -6,7 +6,8 @@ import { DataSource } from "typeorm";
 import { RecipeIngredient } from "./recipeIngredient.entity";
 import { RecipeIngredientDto } from "./recipe-ingredient.dto";
 
-// create a personnal repositoey for Transaction on decorator in the controller 
+// create a personnal repository for Transaction on decorator in the controller
+// and special dataBase manipulation 
 
 @Injectable({scope: Scope.REQUEST})
 export class RecipeIngredientRepository extends BaseRepository{

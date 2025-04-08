@@ -1,6 +1,8 @@
-import { IsString, IsArray, IsNotEmpty, ValidateNested, IsUUID, IsDecimal, IsOptional, IsNumber } from 'class-validator';
+import { IsString, IsArray, IsNotEmpty, ValidateNested, IsUUID, IsDecimal, IsEnum, IsOptional, IsNumber } from 'class-validator';
 import { Expose, Type } from 'class-transformer';
 import { RecipeIngredientDto } from 'src/recipe-ingredient/recipe-ingredient.dto';
+import { SubRecipe } from 'src/sub-recipe/sub-recipe.entity';
+import { SubRecipeDto } from 'src/sub-recipe/sub-recipe.dto';
 
 // class RecipeIngredient {
 //   @IsUUID()
@@ -43,7 +45,11 @@ export class RecipeDto{
   
   @Expose()
   @IsDecimal()
-  numberOfPieces: number
+  quantity: number
+
+  @Expose()
+  @IsEnum(['kg', 'g', 'unit'])
+  unitType: 'kg' | 'g' | 'unit';
 
   @Expose()
   @IsOptional()
@@ -52,16 +58,18 @@ export class RecipeDto{
 
   @Expose()
   @IsArray()
+  @IsOptional()
   @ValidateNested({ each: true })
   @Type(() => RecipeIngredientDto)
   recipeIngredients?: RecipeIngredientDto[];
 
   @Expose()
-  @IsOptional()
   @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => InsufficientIngredient) 
-  insufficientIngredient?: InsufficientIngredient[];
+  @IsOptional()
+  @ValidateNested({each: true})
+  @Type(() =>SubRecipe)
+  subRecipe?: SubRecipe[];
+  
 }
 
 export class CreateRecipeDto {
@@ -70,9 +78,20 @@ export class CreateRecipeDto {
   name: string;
 
   @IsNumber()
-  numberOfPieces: number;
+  quantity: number;
+
+  @Expose()
+  @IsEnum(['kg', 'g', 'unit'])
+  unitType: 'kg' | 'g' | 'unit';
 
   @IsArray()
+  @IsOptional()
+  @ValidateNested({each:true})
+  @Type(()=> SubRecipeDto)
+  subRecipes: SubRecipeDto[];
+
+  @IsArray()
+  @IsOptional()
   @ValidateNested({ each: true })
   @Type(() => RecipeIngredientDto)
   recipeIngredients: RecipeIngredientDto[];
