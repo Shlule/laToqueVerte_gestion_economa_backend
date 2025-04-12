@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, SerializeOptions} from '@nestjs/common';
 import { RecipeIngredient } from './recipeIngredient.entity';
 import { RecipeIngredientService } from './recipe-ingredient.service';
-import MyNotFoundError from 'src/common/execption/notFound.execption';
+import MyNotFoundError from '../common/execption/notFound.execption';
 import { AddToRecipeDto, RecipeIngredientDto } from './recipe-ingredient.dto';
 
 @Controller('recipe-ingredients')

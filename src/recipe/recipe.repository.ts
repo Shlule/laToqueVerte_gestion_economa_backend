@@ -1,11 +1,10 @@
 import { Inject, Injectable, Scope } from "@nestjs/common";
 import { REQUEST } from "@nestjs/core";
 import { Request } from "express";
-import { BaseRepository } from "src/common/base-repository";
+import { BaseRepository } from "../common/base-repository";
 import { DataSource } from "typeorm";
 import { Recipe } from "./recipe.entity";
 import { CreateRecipeDto } from "./recipe.dto";
-import { RecipeIngredient } from "src/recipe-ingredient/recipeIngredient.entity";
 
 @Injectable({scope: Scope.REQUEST})
 export class RecipeRepository extends BaseRepository{

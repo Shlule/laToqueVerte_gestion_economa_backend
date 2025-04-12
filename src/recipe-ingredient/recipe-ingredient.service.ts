@@ -3,15 +3,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { RecipeIngredient } from './recipeIngredient.entity';
 import { RecipeIngredientDto } from './recipe-ingredient.dto';
 import { Repository } from 'typeorm';
-import { convertUnit } from 'src/utils/convertUnit';
+import { convertUnit } from '../utils/convertUnit';
 import { RecipeIngredientRepository } from './recipe-ingredient.repository';
-import { Recipe } from 'src/recipe/recipe.entity';
-import { RecipeCostService } from 'src/recipe/recipeCostService';
+import { Recipe } from '../recipe/recipe.entity';
+import { RecipeCostService } from '../recipe/recipeCostService';
 import {AddToRecipeDto} from './recipe-ingredient.dto'
-import { Ingredient } from 'src/ingredient/ingredient.entity';
+import { Ingredient } from '../ingredient/ingredient.entity';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
-import { InsufficientIngredient } from 'src/recipe/recipe.dto';
-import { IngredientDto } from 'src/ingredient/Ingredient.dto';
+import { InsufficientIngredient } from '../recipe/recipe.dto';
+import { IngredientDto } from '../ingredient/Ingredient.dto';
 
 @Injectable()
 export class RecipeIngredientService {

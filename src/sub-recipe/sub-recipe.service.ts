@@ -3,10 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { SubRecipe } from './sub-recipe.entity';
 import { Repository } from 'typeorm';
 import { SubRecipeDto } from './sub-recipe.dto';
-import { RecipeCostService } from 'src/recipe/recipeCostService';
-import { Recipe } from 'src/recipe/recipe.entity';
+import { RecipeCostService } from '../recipe/recipeCostService';
+import { Recipe } from '../recipe/recipe.entity';
 import {  SubRecipeRepository } from './sub-recipe.repository';
-import { convertUnit } from 'src/utils/convertUnit';
+import { convertUnit } from '../utils/convertUnit';
 
 @Injectable()
 export class SubRecipeService {
@@ -15,8 +15,6 @@ export class SubRecipeService {
         private subRecipeRepository: Repository<SubRecipe>,
         //do this for keep  data acces to a repository and not in the service 
         private mySubRecipeRepository: SubRecipeRepository,
-
-
 
         // inject recipe cost service to update  the recipe cost on subRecipe CRUD 
         @InjectRepository(Recipe)

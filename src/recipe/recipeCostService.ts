@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { Recipe } from './recipe.entity';
 
 import { RecipeRepository } from './recipe.repository';
-import { SubRecipe } from 'src/sub-recipe/sub-recipe.entity';
+import { SubRecipe } from '../sub-recipe/sub-recipe.entity';
 
 @Injectable()
 export class RecipeCostService {
@@ -17,18 +17,18 @@ export class RecipeCostService {
   
 
   async calculateRecipeCost(recipeId: string):Promise<number>{
-    const recipe = await this.recipeRepository.findOne({where:{id: recipeId}})
+    const recipe = await this.recipeRepository.findOne({where:{id: recipeId}, relations:['recipeIngredients','subRecipe']})
 
     let recipeIngredientsCost = 0;
     let subRecipesCost = 0;
     
-    if(recipe.recipeIngredients){
+    if(recipe.recipeIngredients?.length){
       recipeIngredientsCost = recipe.recipeIngredients.reduce((sum,ingredient) =>{
         return sum + Number(ingredient.cost);
       }, 0)
     }
 
-    if(recipe.subRecipe){
+    if(recipe.subRecipe?.length){
       subRecipesCost = recipe.subRecipe.reduce((sum, subRecipe) => {
         return sum + Number(subRecipe.cost);
       }, 0)

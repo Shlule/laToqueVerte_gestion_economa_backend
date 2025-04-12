@@ -1,6 +1,6 @@
 import { Expose, Type } from "class-transformer";
 import { IsDecimal, IsOptional, IsUUID, ValidateNested , IsDate, IsEnum} from "class-validator";
-import { IngredientDto } from "src/ingredient/Ingredient.dto";
+import { IngredientDto } from "../ingredient/Ingredient.dto";
 
 
 export class StockDto{

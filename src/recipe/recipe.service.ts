@@ -4,13 +4,13 @@ import { Repository } from 'typeorm';
 import { Recipe } from './recipe.entity';
 import { RecipeIngredient } from '../recipe-ingredient/recipeIngredient.entity';
 import { CreateRecipeDto, InsufficientIngredient, RecipeDto } from './recipe.dto';
-import { convertUnit } from 'src/utils/convertUnit';
-import { RecipeIngredientService } from 'src/recipe-ingredient/recipe-ingredient.service';
+import { convertUnit } from '../utils/convertUnit';
+import { RecipeIngredientService } from '../recipe-ingredient/recipe-ingredient.service';
 import { RecipeRepository } from './recipe.repository';
 import { RecipeCostService } from './recipeCostService';
-import { Ingredient } from 'src/ingredient/ingredient.entity';
-import { SubRecipeService } from 'src/sub-recipe/sub-recipe.service';
-import { SubRecipe } from 'src/sub-recipe/sub-recipe.entity';
+import { Ingredient } from '../ingredient/ingredient.entity';
+import { SubRecipeService } from '../sub-recipe/sub-recipe.service';
+import { SubRecipe } from '../sub-recipe/sub-recipe.entity';
 
 @Injectable()
 export class RecipeService {
@@ -73,7 +73,6 @@ export class RecipeService {
     }
     // create all subRecipes associated
     if(subRecipes?.length){
-      console.log('je possede des subRecipes ')
       await Promise.all(
         subRecipes.map(async (sub) => { 
           const childRecipe = await this.recipeRepository.findOne({where: {id: sub.parentRecipe.id}});

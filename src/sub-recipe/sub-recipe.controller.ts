@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put } from '@nestjs/common';
 import { SubRecipeService } from './sub-recipe.service';
 import { SubRecipeDto } from './sub-recipe.dto';
-import MyNotFoundError from 'src/common/execption/notFound.execption';
+import MyNotFoundError from '../common/execption/notFound.execption';
 import { BulkOperationBase } from 'typeorm';
 import { SubRecipe } from './sub-recipe.entity';
 
@@ -27,6 +27,7 @@ export class SubRecipeController {
 
     @Get('/byParentRecipe/:recipeId')
     async getAllByParentRecipe(@Param('recipeId') recipeId: string): Promise<SubRecipeDto[]>{
+        console.log('bonjour')
         const subRecipes = await this.subRecipeService.getAllByParentRecipe(recipeId)
         if(!subRecipes){
             throw new MyNotFoundError('recipe',recipeId);

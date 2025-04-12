@@ -1,7 +1,7 @@
 import { Inject, Injectable, Scope } from "@nestjs/common";
 import { Request } from "express";
 import {REQUEST} from "@nestjs/core";
-import { BaseRepository } from "src/common/base-repository";
+import { BaseRepository } from "../common/base-repository";
 import { DataSource } from "typeorm";
 import { RecipeIngredient } from "./recipeIngredient.entity";
 import { RecipeIngredientDto } from "./recipe-ingredient.dto";

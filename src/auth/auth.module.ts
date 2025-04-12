@@ -5,7 +5,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { config as dotenvConfig } from 'dotenv';
 import { User } from '../user/user.entity';
 import { PassportModule } from '@nestjs/passport';
-import { UserModule } from 'src/user/user.module';
+import { UserModule } from '../user/user.module';
 
 dotenvConfig()
 

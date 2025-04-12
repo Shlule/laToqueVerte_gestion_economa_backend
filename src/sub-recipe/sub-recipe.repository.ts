@@ -5,9 +5,9 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { SubRecipeDto } from "./sub-recipe.dto";
 import { REQUEST } from "@nestjs/core";
 import { Request } from "express";
-import { BaseRepository } from "src/common/base-repository";
+import { BaseRepository } from "../common/base-repository";
 
-//TODO - try to create to repository in one file ,
+//TODO - try to create two repository in one file ,
 //one  request scoped et other one just with personnal complexe operation 
 
 // @Injectable()

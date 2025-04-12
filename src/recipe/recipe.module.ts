@@ -3,14 +3,14 @@ import { RecipeController } from './recipe.controller';
 import { RecipeService } from './recipe.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Recipe } from './recipe.entity';
-import { RecipeIngredient } from 'src/recipe-ingredient/recipeIngredient.entity';
-import { Ingredient } from 'src/ingredient/ingredient.entity';
-import {Stock} from 'src/stock/stock.entity'
-import { RecipeIngredientModule } from 'src/recipe-ingredient/recipe-ingredient.module';
-import { IngredientModule } from 'src/ingredient/ingredient.module';
+import { RecipeIngredient } from '../recipe-ingredient/recipeIngredient.entity';
+import { Ingredient } from '../ingredient/ingredient.entity';
+import {Stock} from '../stock/stock.entity'
+import { RecipeIngredientModule } from '../recipe-ingredient/recipe-ingredient.module';
+import { IngredientModule } from '../ingredient/ingredient.module';
 import { RecipeRepository } from './recipe.repository';
 import { RecipeCostService } from './recipeCostService';
-import { SubRecipeModule } from 'src/sub-recipe/sub-recipe.module';
+import { SubRecipeModule } from '../sub-recipe/sub-recipe.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Recipe,RecipeIngredient,Ingredient,Stock]),RecipeIngredientModule, IngredientModule, SubRecipeModule],

@@ -1,20 +1,10 @@
 import { IsString, IsArray, IsNotEmpty, ValidateNested, IsUUID, IsDecimal, IsEnum, IsOptional, IsNumber } from 'class-validator';
 import { Expose, Type } from 'class-transformer';
-import { RecipeIngredientDto } from 'src/recipe-ingredient/recipe-ingredient.dto';
-import { SubRecipe } from 'src/sub-recipe/sub-recipe.entity';
-import { SubRecipeDto } from 'src/sub-recipe/sub-recipe.dto';
+import { RecipeIngredientDto } from '../recipe-ingredient/recipe-ingredient.dto';
+import { SubRecipe } from '../sub-recipe/sub-recipe.entity';
+import { SubRecipeDto } from '../sub-recipe/sub-recipe.dto';
 
-// class RecipeIngredient {
-//   @IsUUID()
-//   ingredientId: string;
 
-//   @IsDecimal()
-//   quantityNeeded: number;
-
-//   @IsString()
-//   @IsNotEmpty()
-//   unit: 'kg' | 'g' | 'unit';
-// }
 
 export class InsufficientIngredient{
 
@@ -68,7 +58,7 @@ export class RecipeDto{
   @IsOptional()
   @ValidateNested({each: true})
   @Type(() =>SubRecipe)
-  subRecipe?: SubRecipe[];
+  subRecipes?: SubRecipe[];
   
 }
 
