@@ -20,9 +20,9 @@ export class SubRecipeController {
         if(!subRecipe){
             throw new NotFoundException('SubRecipe does not exist!')
             
-        }else{
-            return subRecipe
         }
+        return subRecipe
+        
     }
 
     @Get('/byParentRecipe/:recipeId')
@@ -31,9 +31,9 @@ export class SubRecipeController {
         const subRecipes = await this.subRecipeService.getAllByParentRecipe(recipeId)
         if(!subRecipes){
             throw new MyNotFoundError('recipe',recipeId);
-        }else{
-            return subRecipes;
         }
+        return subRecipes;
+        
     }
 
     @Post()

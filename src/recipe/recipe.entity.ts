@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
 import {RecipeIngredient} from '../recipe-ingredient/recipeIngredient.entity'
 import { SubRecipe } from "../sub-recipe/sub-recipe.entity";
+import { CraftedStock } from "../crafted-stock/crafted-stock.entity";
 @Entity()
 
 //TODO -  get  cost field here and do not just calculate cost in front end 
@@ -32,5 +33,7 @@ export class Recipe{
     @OneToMany(() => SubRecipe, (subRecipe) => subRecipe.parentRecipe, {nullable: true, cascade: true ,onDelete:'SET NULL'})
     subRecipe: SubRecipe[];
 
+    @OneToMany(() => CraftedStock,(craftedStock) => craftedStock.recipe, {nullable: true, cascade: true, onDelete:'SET NULL'} )
+    stocks: CraftedStock[];
     
 }

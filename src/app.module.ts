@@ -6,11 +6,11 @@ import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { RecipeModule } from './recipe/recipe.module';
 import { RecipeIngredientModule } from './recipe-ingredient/recipe-ingredient.module';
-import { StockModule } from './stock/stock.module';
+import { SupplierStockModule } from './supplier-stock/supplier-stock.module';
 import { IngredientModule } from './ingredient/ingredient.module';
 import { EventEmitterModule} from '@nestjs/event-emitter'
-import { SubRecipeService } from './sub-recipe/sub-recipe.service';
 import { SubRecipeModule } from './sub-recipe/sub-recipe.module';
+import { CraftedStockModule } from './crafted-stock/crafted-stock.module';
 
 @Module({
   imports: [
@@ -39,8 +39,9 @@ import { SubRecipeModule } from './sub-recipe/sub-recipe.module';
     IngredientModule,
     RecipeModule,
     RecipeIngredientModule,
-    StockModule,
+    SupplierStockModule,
     SubRecipeModule,
+    CraftedStockModule,
 
   ],
   controllers: [AppController],

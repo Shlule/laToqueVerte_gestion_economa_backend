@@ -19,9 +19,9 @@ export class RecipeIngredientController {
         const recipeIngredient = await this.recipeIngredientService.findOne(id);
         if(!recipeIngredient){
             throw new NotFoundException('RecipeIngredient does not exist!');
-        } else{
-            return recipeIngredient;
-        }
+        } 
+         return recipeIngredient;
+        
     }
 
     @Get('/byRecipe/:recipeId')
@@ -29,9 +29,9 @@ export class RecipeIngredientController {
         const recipeIngredients = await this.recipeIngredientService.getAllByRecipe(recipeId);
         if(!recipeIngredients){
             throw new MyNotFoundError('recipe',recipeId);
-        }else{
-            return recipeIngredients;
         }
+        return recipeIngredients;
+        
     }
 
     @Post()

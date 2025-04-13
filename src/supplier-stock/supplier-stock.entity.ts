@@ -3,7 +3,7 @@ import { Ingredient } from "../ingredient/ingredient.entity";
 // maybe think about lots 
 // for example 20 farine bag of 1 kg
 @Entity()
-export class Stock{
+export class SupplierStock{
 
     @PrimaryGeneratedColumn('uuid')
     id: string;

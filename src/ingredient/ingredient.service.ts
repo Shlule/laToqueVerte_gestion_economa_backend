@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IngredientDto } from './Ingredient.dto';
 import { Repository } from 'typeorm';
@@ -33,6 +33,9 @@ export class IngredientService {
       async update(ingredientId: string, ingredientData: Partial<IngredientDto>): Promise<IngredientDto> {
         await this.ingredientRepository.update(ingredientId, ingredientData);
         const ingredientUpdated = await this.ingredientRepository.findOne({where:{id: ingredientId}})
+        if(!ingredientUpdated){
+          throw new NotFoundException(`ingredient with id ${ingredientId} cannot be found`)
+        }
         this.eventEmitter.emit('ingredient.updated',ingredientUpdated)
         return ingredientUpdated
 

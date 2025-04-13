@@ -1,7 +1,7 @@
 import { IsString, IsArray, IsNotEmpty, ValidateNested, IsUUID, IsDecimal, IsOptional, IsEnum } from 'class-validator';
 import { Expose, Type } from 'class-transformer';
 import { RecipeIngredientDto } from '../recipe-ingredient/recipe-ingredient.dto';
-import { StockDto } from '../stock/stocks.dto';
+import { SupplierStockDto } from '../supplier-stock/supplier-stocks.dto';
 
 export class IngredientDto{
 
@@ -34,8 +34,8 @@ export class IngredientDto{
     @Expose()
     @IsOptional()
     @ValidateNested({ each: true })
-    @Type(() => StockDto)
-    stock?: StockDto[];
+    @Type(() => SupplierStockDto)
+    stock?: SupplierStockDto[];
 
 
 }

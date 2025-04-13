@@ -6,12 +6,26 @@ import { DataSource } from "typeorm";
 import { Recipe } from "./recipe.entity";
 import { CreateRecipeDto } from "./recipe.dto";
 
+
+// all fonction used in create function in recipeService must be in this repository
+// maybe because it is ScopeRequest
 @Injectable({scope: Scope.REQUEST})
 export class RecipeRepository extends BaseRepository{
     constructor(dataSource: DataSource, @Inject(REQUEST) req: Request){
         super(dataSource, req);
     }
 
+    async getAllRecipes(){
+        return await this.getRepository(Recipe).find()
+    }
+
+    async getRecipe(recipeId: string): Promise<Recipe>{
+        const recipe = await this.getRepository(Recipe).findOne({where: {id: recipeId},relations:['recipeIngredients','subRecipe']});
+        if(!recipe){
+            throw new Error(`Recipe with the id ${recipeId} not found`)
+        }
+        return recipe
+    }
 
     async getRecipesByName(name: string): Promise<Recipe[]>{
         const recipeList = this.getRepository(Recipe)
@@ -21,10 +35,18 @@ export class RecipeRepository extends BaseRepository{
         return await recipeList.getMany()
     }
 
+    async saveRecipe(recipe: Partial<Recipe>): Promise<Recipe>{
+        return await this.getRepository(Recipe).save(recipe)
+    }
+
     async createRecipe(recipe: CreateRecipeDto): Promise<Recipe>{
         const {recipeIngredients, subRecipes, ...recipeData} = recipe
         const newRecipe = await this.getRepository(Recipe).create(recipeData)
         return await this.getRepository(Recipe).save(newRecipe)
+    }
+
+    async deleteRecipe(id: string){
+        return await this.getRepository(Recipe).delete(id);
     }
 
     // SECTION - not used 

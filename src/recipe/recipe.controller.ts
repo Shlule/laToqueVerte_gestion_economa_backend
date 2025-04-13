@@ -18,9 +18,9 @@ export class RecipeController {
     const recipe = await this.recipeService.findOne(id);
     if (!recipe) {
       throw new NotFoundException('Recipe does not exist!');
-    } else {
-      return recipe;
-    }
+    } 
+    return recipe;
+    
   }
 
  
@@ -29,9 +29,9 @@ export class RecipeController {
     const recipes = await this.recipeService.getRecipeByName(recipeName);
     if(!recipes){
       throw new NotFoundException('There are no recipe with this name');
-    } else{
-      return recipes
-    }
+    } 
+    return recipes
+    
   }
 
 

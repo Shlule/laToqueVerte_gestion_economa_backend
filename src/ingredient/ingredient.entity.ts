@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
 import {RecipeIngredient} from '../recipe-ingredient/recipeIngredient.entity'
-import {Stock} from '../stock/stock.entity'
+import {SupplierStock} from '../supplier-stock/supplier-stock.entity'
 
 @Entity()
 export class Ingredient {
@@ -26,6 +26,6 @@ export class Ingredient {
     @OneToMany(() =>RecipeIngredient,(recipeIngredient) => recipeIngredient.ingredient)
     recipeIngredients: RecipeIngredient[];
 
-    @OneToMany(()=> Stock, (stock) => stock.ingredient)
-    stock: Stock[];
+    @OneToMany(()=> SupplierStock, (stock) => stock.ingredient)
+    stock: SupplierStock[];
 }

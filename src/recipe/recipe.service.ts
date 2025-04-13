@@ -47,11 +47,13 @@ export class RecipeService {
   }
 
   async create(recipe: CreateRecipeDto): Promise<RecipeDto>{
-    const {recipeIngredients , subRecipes} = recipe
+    const {recipeIngredients, subRecipes} = recipe
 
     // create of principa recipe
     const savedRecipe = await this.myRecipeRepository.createRecipe(recipe)
-
+    console.log(savedRecipe)
+    console.log(recipeIngredients)
+    console.log(subRecipes)
     // create all RecipeIngredients associated
     if(recipeIngredients?.length){
       await Promise.all(
@@ -71,11 +73,15 @@ export class RecipeService {
         })
       )
     }
+
+    console.log('je suis passer par la creation des recipeIngredient')
     // create all subRecipes associated
     if(subRecipes?.length){
       await Promise.all(
         subRecipes.map(async (sub) => { 
-          const childRecipe = await this.recipeRepository.findOne({where: {id: sub.parentRecipe.id}});
+          console.log(sub)
+          const childRecipe = await this.recipeRepository.findOne( {where:{id:sub.subRecipe.id}});
+          console.log('bonjour')
           if(!childRecipe){
             throw new BadRequestException(`Invalid sub-recipe: Recipe ID ${sub.subRecipe.id || 'unknown'} is not valid`);
           }
@@ -87,14 +93,16 @@ export class RecipeService {
         })
       )
     }
-    
+    console.log('je suis passer par la creation des subRecipe')
     // calculate recipe cost 
     const cost = await this.recipeCostService.calculateRecipeCost(savedRecipe.id);
     savedRecipe.cost = cost;
-    await this.recipeRepository.save(savedRecipe);
-
+    console.log('le cout est calculer')
+    console.log(savedRecipe)
+    const resavedRecipe = await this.myRecipeRepository.saveRecipe(savedRecipe);
+    console.log(resavedRecipe)
     // return recipe Object
-    return await this.recipeRepository.findOne({where: {id:savedRecipe.id}})
+    return await this.myRecipeRepository.getRecipe(savedRecipe.id)
       
   }
 

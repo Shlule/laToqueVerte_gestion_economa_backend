@@ -14,23 +14,23 @@ export class IngredientController {
 
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<IngredientDto> {
-    const user = await this.ingredientService.findOne(id);
-    if (!user) {
+    const ingredient = await this.ingredientService.findOne(id);
+    if (!ingredient) {
       throw new NotFoundException('Ingredient does not exist!');
-    } else {
-      return user;
-    }
+    } 
+    return ingredient;
+    
   }
 
 
   @Get()
   async findOneByName(@Query('name') name: string): Promise<IngredientDto> {
-    const user = await this.ingredientService.findOneByName(name);
-    if (!user) {
+    const ingredient = await this.ingredientService.findOneByName(name);
+    if (!ingredient) {
       throw new NotFoundException('Ingredient does not exist!');
-    } else {
-      return user;
-    }
+    } 
+    return ingredient;
+    
   }
   @Post()
   async create(@Body() ingredient: IngredientDto): Promise<IngredientDto> {

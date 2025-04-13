@@ -3,7 +3,7 @@ import { IsDecimal, IsOptional, IsUUID, ValidateNested , IsDate, IsEnum} from "c
 import { IngredientDto } from "../ingredient/Ingredient.dto";
 
 
-export class StockDto{
+export class SupplierStockDto{
 
     @Expose()
     @IsUUID()
@@ -26,6 +26,6 @@ export class StockDto{
 
     @Expose()
     @IsEnum(['kg', 'g', 'unit'])
-    unit: 'kg'| 'g'| 'unit'
+    unit: 'kg'| 'g'| 'unit';
 
 }
