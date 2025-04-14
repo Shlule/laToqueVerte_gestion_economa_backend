@@ -27,7 +27,6 @@ export class SubRecipeController {
 
     @Get('/byParentRecipe/:recipeId')
     async getAllByParentRecipe(@Param('recipeId') recipeId: string): Promise<SubRecipeDto[]>{
-        console.log('bonjour')
         const subRecipes = await this.subRecipeService.getAllByParentRecipe(recipeId)
         if(!subRecipes){
             throw new MyNotFoundError('recipe',recipeId);

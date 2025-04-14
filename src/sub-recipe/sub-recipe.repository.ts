@@ -41,11 +41,21 @@ export class SubRecipeRepository  extends BaseRepository{
     }
 
     async getAllByParentRecipe(parentRecipeId: string): Promise<SubRecipe[]>{
-        return this.getRepository(SubRecipe)
+        return await this.getRepository(SubRecipe)
         .createQueryBuilder('subRecipe')
         .leftJoinAndSelect('subRecipe.parentRecipe', 'parentRecipe')
         .where('parentRecipe.id = :parentRecipeId', {parentRecipeId})
         .getMany()
+    }
+
+    async getAllByParentRecipeWithStocks(parentRecipeId: string):Promise<SubRecipe[]>{
+        return await this.getRepository(SubRecipe)
+        .createQueryBuilder('subRecipe')
+        .leftJoinAndSelect('subRecipe.childRecipe', 'childRecipe')
+        .leftJoinAndSelect('childRecipe.stocks','stocks')
+        .where('subRecipe.parentRecipeId =:parentRecipeId',{parentRecipeId})
+        .getMany();
+
     }
 
 }

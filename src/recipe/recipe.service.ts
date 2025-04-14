@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Recipe } from './recipe.entity';
 import { RecipeIngredient } from '../recipe-ingredient/recipeIngredient.entity';
-import { CreateRecipeDto, InsufficientIngredient, RecipeDto } from './recipe.dto';
+import { CreateRecipeDto, InsufficientIngredient, InsufficientSubRecipe, RecipeDto } from './recipe.dto';
 import { convertUnit } from '../utils/convertUnit';
 import { RecipeIngredientService } from '../recipe-ingredient/recipe-ingredient.service';
 import { RecipeRepository } from './recipe.repository';
@@ -51,9 +51,7 @@ export class RecipeService {
 
     // create of principa recipe
     const savedRecipe = await this.myRecipeRepository.createRecipe(recipe)
-    console.log(savedRecipe)
-    console.log(recipeIngredients)
-    console.log(subRecipes)
+    
     // create all RecipeIngredients associated
     if(recipeIngredients?.length){
       await Promise.all(
@@ -74,33 +72,27 @@ export class RecipeService {
       )
     }
 
-    console.log('je suis passer par la creation des recipeIngredient')
+   
     // create all subRecipes associated
     if(subRecipes?.length){
       await Promise.all(
         subRecipes.map(async (sub) => { 
-          console.log(sub)
-          const childRecipe = await this.recipeRepository.findOne( {where:{id:sub.subRecipe.id}});
-          console.log('bonjour')
+          const childRecipe = await this.recipeRepository.findOne( {where:{id:sub.childRecipe.id}});
           if(!childRecipe){
-            throw new BadRequestException(`Invalid sub-recipe: Recipe ID ${sub.subRecipe.id || 'unknown'} is not valid`);
+            throw new BadRequestException(`Invalid sub-recipe: Recipe ID ${sub.childRecipe.id || 'unknown'} is not valid`);
           }
           await this.subRecipeService.create({
             ...sub,
-            subRecipe: childRecipe,
+            childRecipe: childRecipe,
             parentRecipe: savedRecipe
           });
         })
       )
     }
-    console.log('je suis passer par la creation des subRecipe')
     // calculate recipe cost 
     const cost = await this.recipeCostService.calculateRecipeCost(savedRecipe.id);
     savedRecipe.cost = cost;
-    console.log('le cout est calculer')
-    console.log(savedRecipe)
     const resavedRecipe = await this.myRecipeRepository.saveRecipe(savedRecipe);
-    console.log(resavedRecipe)
     // return recipe Object
     return await this.myRecipeRepository.getRecipe(savedRecipe.id)
       
@@ -128,6 +120,7 @@ export class RecipeService {
     await this.recipeRepository.delete(id);
   }
 
+  // TODO - change for th subRecipe Form funciton
   async getInsufficientIngredients(recipeId: string): Promise<InsufficientIngredient[]>{
     
     const recipeIngredients = await this.recipeIngredientService.getAllByRecipeWithStocks(recipeId)
@@ -137,7 +130,7 @@ export class RecipeService {
       const {ingredient, quantityNeeded, unit} = recipeIngredient;
       
       let convertedQuantityNeeded = convertUnit(quantityNeeded,unit,ingredient.unitType);
-      if(!ingredient.stock || ingredient.stock.length === 0){
+      if(!ingredient.stocks || ingredient.stocks.length === 0){
         insufficientIngredient.push({
           name: ingredient.name,
           ingredientId: ingredient.id,
@@ -147,7 +140,7 @@ export class RecipeService {
         continue;
       }
 
-      const totalAvailable = ingredient.stock.reduce(
+      const totalAvailable = ingredient.stocks.reduce(
         (sum,stock) => sum + stock.quantity, 0
       )
       if(totalAvailable < convertedQuantityNeeded){
@@ -164,9 +157,32 @@ export class RecipeService {
     return insufficientIngredient
   }
 
-    // async getInsufficientIngredient(recipeId: string){
-    //   return this.myRecipeRepository.getInsufficientIngredients(recipeId)
-    // }
+  async getInsufficientSubRecipes(recipeId: string): Promise<InsufficientSubRecipe[]> {
+    const subRecipes = await this.subRecipeService.getAllByParentRecipeWithStocks(recipeId);
+  
+    return subRecipes
+      .map(sub => {
+        const { childRecipe, quantityNeeded, unit } = sub;
+        const converted = convertUnit(quantityNeeded, unit, childRecipe.unitType);
+        if (converted == null) return null;
+  
+        const stocks = childRecipe.stocks ?? [];
+        const available = stocks.reduce((sum, s) => sum + s.quantity, 0);
+  
+        if (available < converted) {
+          return {
+            name: childRecipe.name,
+            childRecipeId: childRecipe.id,
+            missingQuantity: converted - available,
+            unit: childRecipe.unitType,
+          };
+        }
+  
+        return null;
+      })
+      // this is a type guard safe 
+      .filter((r): r is InsufficientSubRecipe => r !== null);
+  }
   
 
 }

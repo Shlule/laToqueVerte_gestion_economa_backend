@@ -27,6 +27,6 @@ export class SubRecipeDto{
     @Expose()
     @ValidateNested()
     @Type(() =>RecipeDto)
-    subRecipe: RecipeDto
+    childRecipe: RecipeDto
 
 }

@@ -10,7 +10,7 @@ export class SubRecipe{
     parentRecipe: Recipe;
 
     @ManyToOne(() => Recipe, {onDelete: 'CASCADE'})
-    subRecipe: Recipe;
+    childRecipe: Recipe;
 
     @Column('decimal',{precision: 10, scale: 2})
     quantityNeeded: number;

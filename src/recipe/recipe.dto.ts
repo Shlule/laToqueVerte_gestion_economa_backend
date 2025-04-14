@@ -23,6 +23,21 @@ export class InsufficientIngredient{
 
 }
 
+export class InsufficientSubRecipe{
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @IsUUID()
+  childRecipeId: string;
+
+  @IsDecimal()
+  missingQuantity: number;
+
+  @IsString()
+  unit: 'kg'|'g'|'unit';
+}
+
 export class RecipeDto{
 
   @Expose()

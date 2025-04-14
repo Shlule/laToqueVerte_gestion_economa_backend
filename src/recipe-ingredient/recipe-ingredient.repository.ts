@@ -39,7 +39,7 @@ export class RecipeIngredientRepository extends BaseRepository{
         return await this.getRepository(RecipeIngredient)
         .createQueryBuilder('recipeIngredient')
         .leftJoinAndSelect('recipeIngredient.ingredient', 'ingredient')
-        .leftJoinAndSelect('ingredient.stock', 'stock')
+        .leftJoinAndSelect('ingredient.stocks', 'stocks')
         .where('recipeIngredient.recipeId = :recipeId', { recipeId })
         .getMany();
     }

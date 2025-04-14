@@ -35,7 +35,7 @@ export class IngredientDto{
     @IsOptional()
     @ValidateNested({ each: true })
     @Type(() => SupplierStockDto)
-    stock?: SupplierStockDto[];
+    stocks?: SupplierStockDto[];
 
 
 }

@@ -8,7 +8,7 @@ export class SupplierStock{
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @ManyToOne(()=> Ingredient,(ingredient)=> ingredient.stock, {onDelete:'CASCADE'})
+    @ManyToOne(()=> Ingredient,(ingredient)=> ingredient.stocks, {onDelete:'CASCADE'})
     ingredient: Ingredient;
 
     @Column('decimal', {precision: 10, scale: 2})

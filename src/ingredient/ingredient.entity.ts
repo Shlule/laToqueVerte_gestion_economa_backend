@@ -27,5 +27,5 @@ export class Ingredient {
     recipeIngredients: RecipeIngredient[];
 
     @OneToMany(()=> SupplierStock, (stock) => stock.ingredient)
-    stock: SupplierStock[];
+    stocks: SupplierStock[];
 }

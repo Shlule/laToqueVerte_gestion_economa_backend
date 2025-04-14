@@ -35,6 +35,10 @@ export class SubRecipeService {
         return this.mySubRecipeRepository.getAllByParentRecipe(recipeId)
     }
 
+    async getAllByParentRecipeWithStocks(recipeId:string) {
+        return this.mySubRecipeRepository.getAllByParentRecipeWithStocks(recipeId);
+    }
+
     async create(subRecipe: SubRecipeDto): Promise<SubRecipe>{
         const cost = await this.calculateCost(subRecipe)
         subRecipe.cost = cost

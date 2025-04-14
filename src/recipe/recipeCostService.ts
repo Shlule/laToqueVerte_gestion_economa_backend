@@ -23,8 +23,7 @@ export class RecipeCostService {
 
     let recipeIngredientsCost = 0;
     let subRecipesCost = 0;
-    console.log('je suis juste avant les recipeIngredient')
-    console.log(recipe)
+
     if(recipe.recipeIngredients?.length){
       recipeIngredientsCost = recipe.recipeIngredients.reduce((sum,ingredient) =>{
         return sum + Number(ingredient.cost);
@@ -41,19 +40,5 @@ export class RecipeCostService {
     recipe.cost = totalCost;
     return totalCost;
   }
-  // async calculateRecipeCost(recipeId: string):Promise<number>{
-  //   const recipe = await this.myRecipeRepository.getRecipe(recipeId)
-  //   console.log('bonjour')
-  //   console.log(recipe)
-   
-  //   const totalCost = recipe.recipeIngredients.reduce((sum,ingredient) =>{
-  //       return sum + Number(ingredient.cost);
-  //     }, 0)
-    
-
-  //   console.log(totalCost)
-  //   recipe.cost = totalCost;
-  //   return totalCost;
-  // }
   
 }
